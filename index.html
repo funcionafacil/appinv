@@ -1,0 +1,3748 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Taxonomía Emergente + Construir Anteproyecto con IA</title>
+<!-- jsPDF para exportar el anteproyecto -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- jsPDF-AutoTable para exportar la matriz del Marco Lógico -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+    /* ====================================================
+       VARIABLES Y RESET
+       ==================================================== */
+    :root {
+        --sena-verde: #2E7D32;
+        --sena-verde-claro: #4CAF50;
+        --sena-azul: #1565C0;
+        --sena-gris: #263238;
+        --sena-naranja: #E65100;
+        --sena-dorado: #F9A825;
+        --sena-rojo: #C62828;
+
+        --nivel0: #4FC3F7;
+        --nivel0-osc: #0288D1;
+        --nivel1: #26C6DA;
+        --nivel1-osc: #00838F;
+        --nivel2: #81C784;
+        --nivel2-osc: #388E3C;
+        --nivel3: #AED581;
+        --nivel3-osc: #689F38;
+        --nivel4: #FFB74D;
+        --nivel4-osc: #F57C00;
+        --nivel5: #BA68C8;
+        --nivel5-osc: #7B1FA2;
+        --nivel6: #FFD54F;
+        --nivel6-osc: #F9A825;
+
+        --shadow: 0 4px 15px rgba(0,0,0,0.1);
+        --shadow-hover: 0 8px 25px rgba(0,0,0,0.15);
+        --radius: 12px;
+        --transition: 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+        min-height: 100vh;
+        padding: 30px 20px;
+        color: var(--sena-gris);
+        line-height: 1.6;
+    }
+
+    .container { max-width: 1300px; margin: 0 auto; }
+
+    /* ====================================================
+       HEADER
+       ==================================================== */
+    .header {
+        text-align: center;
+        border-bottom: 5px solid var(--sena-verde);
+        padding-bottom: 25px;
+        margin-bottom: 30px;
+    }
+    .header .badge {
+        display: inline-block;
+        background: var(--sena-verde);
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 4px 16px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+    }
+    .header h1 { color: var(--sena-verde); font-size: 2.2rem; margin-bottom: 6px; }
+    .header .subtitulo { color: #555; font-size: 1.1rem; font-style: italic; }
+
+    /* ====================================================
+       MENÚ SUPERIOR: 5 cards
+       ==================================================== */
+    .menu-superior {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .menu-card {
+        background: #fff;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        transition: var(--transition);
+        cursor: pointer;
+        border: 3px solid transparent;
+        user-select: none;
+    }
+    .menu-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-4px); }
+    .menu-card.active {
+        border-color: var(--sena-verde);
+        box-shadow: 0 8px 25px rgba(46,125,50,0.35);
+        transform: translateY(-4px);
+    }
+    .menu-card .menu-card-header {
+        background: linear-gradient(135deg, var(--sena-verde) 0%, var(--sena-verde-claro) 100%);
+        color: white;
+        padding: 18px 16px;
+        transition: var(--transition);
+    }
+    .menu-card.active .menu-card-header {
+        background: linear-gradient(135deg, var(--sena-azul) 0%, #0d47a1 100%);
+    }
+    .menu-card .menu-card-header h2 {
+        font-size: 0.95rem;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .menu-card .menu-card-header p { font-size: 0.72em; opacity: 0.95; font-style: italic; }
+
+    /* ====================================================
+       CONTENIDO PANEL
+       ==================================================== */
+    .contenido-panel {
+        background: #fff;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 35px 40px;
+        animation: fadeIn 0.4s ease;
+        min-height: 400px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .contenido-panel .panel-titulo {
+        color: var(--sena-verde);
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .contenido-panel .panel-subtitulo {
+        color: #666;
+        font-size: 0.95rem;
+        font-style: italic;
+        margin-bottom: 25px;
+    }
+
+    /* ====================================================
+       IMÁGENES EN TOGGLES
+       ==================================================== */
+    .toggle-content .toggle-media {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        margin: 10px 0 15px;
+    }
+    .toggle-content .toggle-media img {
+        flex-shrink: 0;
+        width: 220px;
+        max-width: 40%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        object-fit: cover;
+    }
+    .toggle-content .toggle-media .toggle-media-texto { flex: 1; min-width: 0; }
+    .toggle-content .imagen-full {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin-top: 18px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    @media (max-width: 640px) {
+        .toggle-content .toggle-media { flex-direction: column; }
+        .toggle-content .toggle-media img { width: 100%; max-width: 100%; }
+    }
+
+    /* ====================================================
+       ZOOM
+       ==================================================== */
+    .zoom-wrap {
+        position: relative;
+        margin-top: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        background: #f8f9fa;
+    }
+    .zoom-controles {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.92);
+        padding: 6px 10px;
+        border-radius: 30px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        backdrop-filter: blur(6px);
+    }
+    .zoom-btn {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 50%;
+        background: var(--sena-verde);
+        color: #fff;
+        font-size: 1.15rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: inherit;
+        line-height: 1;
+        padding: 0;
+        box-shadow: 0 3px 8px rgba(46,125,50,0.25);
+    }
+    .zoom-btn:hover { background: #1b5e20; transform: scale(1.08); }
+    .zoom-btn:active { transform: scale(0.95); }
+    .zoom-btn.zoom-reset {
+        background: var(--sena-azul);
+        font-size: 0.75rem;
+        font-weight: 700;
+        box-shadow: 0 3px 8px rgba(21,101,192,0.25);
+    }
+    .zoom-btn.zoom-reset:hover { background: #0d47a1; }
+    .zoom-nivel {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--sena-gris);
+        min-width: 42px;
+        text-align: center;
+        font-family: 'Consolas', 'Monaco', monospace;
+        letter-spacing: 0.3px;
+    }
+    .zoom-viewport {
+        width: 100%;
+        height: 480px;
+        overflow: hidden;
+        position: relative;
+        cursor: zoom-in;
+        background:
+            linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+            linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+            linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+        background-size: 20px 20px;
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+        background-color: #fafafa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        touch-action: none;
+    }
+    .zoom-viewport.zoomed { cursor: grab; }
+    .zoom-viewport.dragging { cursor: grabbing; }
+    .zoom-img {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        transform-origin: center center;
+        transition: transform 0.15s ease-out;
+        user-select: none;
+        -webkit-user-drag: none;
+        will-change: transform;
+        pointer-events: none;
+    }
+    .zoom-viewport.dragging .zoom-img { transition: none; }
+    .zoom-hint {
+        margin: 0;
+        padding: 10px 16px;
+        font-size: 0.82rem;
+        font-style: italic;
+        color: #666;
+        background: #fff;
+        border-top: 1px solid #eee;
+        text-align: center;
+    }
+    .zoom-hint strong { color: var(--sena-verde); font-style: normal; }
+
+    @media (max-width: 768px) {
+        .zoom-viewport { height: 320px; }
+        .zoom-btn { width: 30px; height: 30px; font-size: 1rem; }
+        .zoom-btn.zoom-reset { font-size: 0.68rem; }
+        .zoom-controles { top: 8px; right: 8px; padding: 4px 8px; gap: 4px; }
+        .zoom-nivel { font-size: 0.68rem; min-width: 36px; }
+    }
+
+    /* ====================================================
+       TOGGLES
+       ==================================================== */
+    .toggle-btn {
+        background: var(--sena-verde);
+        color: #fff;
+        border: none;
+        padding: 16px 22px;
+        border-radius: 10px;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        margin-bottom: 10px;
+        font-size: 1em;
+        font-weight: 600;
+        transition: var(--transition);
+        position: relative;
+        font-family: inherit;
+        box-shadow: 0 3px 10px rgba(46,125,50,0.2);
+    }
+    .toggle-btn:hover { filter: brightness(1.1); transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    .toggle-btn::after {
+        content: '▼';
+        position: absolute;
+        right: 20px;
+        transition: transform 0.3s ease;
+        font-size: 0.85em;
+    }
+    .toggle-btn.active::after { transform: rotate(180deg); }
+
+    .toggle-btn.nivel0 { background: linear-gradient(135deg, var(--nivel0), var(--nivel0-osc)); color: #fff; }
+    .toggle-btn.nivel1 { background: linear-gradient(135deg, var(--nivel1), var(--nivel1-osc)); color: #fff; }
+    .toggle-btn.nivel2 { background: linear-gradient(135deg, var(--nivel2), var(--nivel2-osc)); color: #fff; }
+    .toggle-btn.nivel3 { background: linear-gradient(135deg, var(--nivel3), var(--nivel3-osc)); color: #333; }
+    .toggle-btn.nivel4 { background: linear-gradient(135deg, var(--nivel4), var(--nivel4-osc)); color: #333; }
+    .toggle-btn.nivel5 { background: linear-gradient(135deg, var(--nivel5), var(--nivel5-osc)); color: #fff; }
+    .toggle-btn.nivel6 { background: linear-gradient(135deg, var(--nivel6), var(--nivel6-osc)); color: #333; }
+
+    .toggle-content {
+        display: none;
+        padding: 20px 22px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        border-left: 5px solid var(--sena-verde);
+        animation: slideDown 0.3s ease;
+    }
+    .toggle-content.active { display: block; }
+    @keyframes slideDown {
+        from { opacity: 0; max-height: 0; }
+        to { opacity: 1; max-height: 8000px; }
+    }
+
+    .toggle-content h3 {
+        color: var(--sena-azul);
+        margin-bottom: 12px;
+        font-size: 1.15em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .toggle-content h4 { color: var(--sena-gris); margin: 15px 0 8px; font-size: 1em; }
+    .toggle-content p { line-height: 1.6; margin-bottom: 10px; color: #444; font-size: 0.95rem; }
+    .toggle-content ul { margin-left: 20px; margin-bottom: 10px; }
+    .toggle-content li { margin-bottom: 8px; line-height: 1.5; color: #444; font-size: 0.95rem; }
+
+    /* ====================================================
+       GRID DE NIVEL
+       ==================================================== */
+    .nivel-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 10px; }
+    @media (max-width: 900px) { .nivel-grid { grid-template-columns: 1fr; } }
+
+    .nivel-col-principal {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px 22px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .nivel-col-sampieri {
+        background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
+        border: 2px dashed var(--sena-verde);
+        border-radius: 10px;
+        padding: 20px 22px;
+        position: relative;
+    }
+    .nivel-col-sampieri::before {
+        content: '📖 SUSTENTO SAMPIERI';
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        color: var(--sena-verde);
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(46,125,50,0.2);
+    }
+    .nivel-col-sampieri blockquote {
+        font-style: italic;
+        color: #333;
+        border-left: 4px solid var(--sena-verde);
+        padding: 10px 15px;
+        margin: 10px 0;
+        background: rgba(255,255,255,0.6);
+        border-radius: 0 6px 6px 0;
+        font-size: 0.92rem;
+    }
+    .nivel-col-sampieri .correspondencia {
+        margin-top: 15px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(46,125,50,0.2);
+        font-size: 0.85rem;
+        color: #555;
+    }
+    .nivel-col-sampieri .correspondencia strong {
+        color: var(--sena-verde);
+        display: block;
+        margin-bottom: 5px;
+        font-size: 0.75rem;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .verbo-nivel {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--sena-verde) 0%, var(--sena-verde-claro) 100%);
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 8px 20px;
+        border-radius: 30px;
+        margin-bottom: 15px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    }
+    .verbo-nivel.nivel0 { background: linear-gradient(135deg, var(--nivel0), var(--nivel0-osc)); color: #fff; }
+    .verbo-nivel.nivel1 { background: linear-gradient(135deg, var(--nivel1), var(--nivel1-osc)); color: #fff; }
+    .verbo-nivel.nivel2 { background: linear-gradient(135deg, var(--nivel2), var(--nivel2-osc)); color: #fff; }
+    .verbo-nivel.nivel3 { background: linear-gradient(135deg, var(--nivel3), var(--nivel3-osc)); color: #333; }
+    .verbo-nivel.nivel4 { background: linear-gradient(135deg, var(--nivel4), var(--nivel4-osc)); color: #333; }
+    .verbo-nivel.nivel5 { background: linear-gradient(135deg, var(--nivel5), var(--nivel5-osc)); color: #fff; }
+    .verbo-nivel.nivel6 { background: linear-gradient(135deg, var(--nivel6), var(--nivel6-osc)); color: #333; }
+
+    .pregunta-investigador {
+        background: #e3f2fd;
+        border-left: 4px solid var(--sena-azul);
+        border-radius: 0 8px 8px 0;
+        padding: 12px 16px;
+        margin: 15px 0;
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--sena-azul);
+    }
+    .pregunta-investigador::before { content: '❓ '; font-size: 1.1rem; }
+
+    .no-delega {
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        border-left: 5px solid var(--sena-naranja);
+        border-radius: 0 8px 8px 0;
+        padding: 14px 18px;
+        margin: 15px 0;
+    }
+    .no-delega::before {
+        content: '🚫 LO QUE EL INVESTIGADOR NO DELEGA EN LA IA';
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: var(--sena-naranja);
+        margin-bottom: 8px;
+    }
+    .no-delega p { margin: 0; color: #5D4037; font-weight: 600; font-size: 0.95rem; }
+
+    .ia-sugeridas {
+        background: #1a1a2e;
+        color: #e0e0e0;
+        border-radius: 10px;
+        padding: 15px 18px;
+        margin: 15px 0;
+        font-size: 0.88rem;
+    }
+    .ia-sugeridas::before {
+        content: '🤖 HERRAMIENTAS IA SUGERIDAS PARA ESTE NIVEL';
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: #81c784;
+        margin-bottom: 10px;
+    }
+    .ia-sugeridas ul { list-style: none; margin: 0; padding: 0; }
+    .ia-sugeridas li {
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        color: #e0e0e0;
+        font-size: 0.88rem;
+    }
+    .ia-sugeridas li:last-child { border-bottom: none; }
+    .ia-sugeridas li strong { color: #64b5f6; display: inline-block; min-width: 130px; }
+
+    /* ====================================================
+       HIGHLIGHT / SOURCE
+       ==================================================== */
+    .highlight {
+        background: #e3f2fd;
+        padding: 15px 18px;
+        border-radius: 0 8px 8px 0;
+        margin: 15px 0;
+        border-left: 4px solid var(--sena-azul);
+        font-size: 0.95rem;
+        color: #444;
+    }
+    .highlight strong { color: var(--sena-azul); }
+
+    .source {
+        background: #fff3e0;
+        border-left: 4px solid var(--sena-naranja);
+        padding: 12px 15px;
+        margin-top: 15px;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.85em;
+    }
+    .source strong { color: var(--sena-naranja); }
+
+    /* ====================================================
+       TOOLS GRID
+       ==================================================== */
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+    }
+    .tool-item {
+        background: #fff;
+        padding: 14px 16px;
+        border-radius: 8px;
+        border: 2px solid var(--sena-verde);
+        font-size: 0.9em;
+        transition: var(--transition);
+    }
+    .tool-item:hover { background: #e8f5e9; transform: translateY(-2px); box-shadow: var(--shadow); }
+    .tool-item strong { color: var(--sena-verde); display: block; margin-bottom: 5px; font-size: 1em; }
+
+    /* ====================================================
+       TABLA INTEGRADORA
+       ==================================================== */
+    .tabla-integradora {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 0.88rem;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+    .tabla-integradora thead { background: var(--sena-verde); color: #fff; }
+    .tabla-integradora thead th {
+        padding: 14px 16px;
+        text-align: left;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .tabla-integradora tbody tr {
+        border-bottom: 1px solid #e0e0e0;
+        transition: var(--transition);
+    }
+    .tabla-integradora tbody tr:nth-child(even) { background: #f8f9fa; }
+    .tabla-integradora tbody tr:hover { background: #e8f5e9; }
+    .tabla-integradora tbody td {
+        padding: 14px 16px;
+        vertical-align: top;
+        font-size: 0.85rem;
+        color: #444;
+    }
+    .tabla-integradora tbody td:first-child {
+        font-weight: 700;
+        color: var(--sena-verde);
+        white-space: nowrap;
+    }
+    .tabla-integradora .col-verbo { font-weight: 700; color: var(--sena-azul); }
+
+    /* ====================================================
+       FLUJOGRAMA
+       ==================================================== */
+    .flujograma-wrap {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+        border-radius: var(--radius);
+        padding: 30px 30px 25px;
+        margin: 10px 0;
+        border: 2px solid var(--sena-verde-claro);
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+    }
+    .flujograma-wrap::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, var(--sena-azul), var(--sena-verde), #6A1B9A);
+    }
+    .flujograma-titulo {
+        color: var(--sena-verde);
+        font-size: 1.3rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 6px;
+    }
+    .flujograma-sub {
+        color: #555;
+        font-size: 0.9rem;
+        font-style: italic;
+        margin-bottom: 20px;
+    }
+    .flujo-progreso {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+    .flujo-paso {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        background: #fff;
+        border: 2px solid #e0e0e0;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #999;
+        transition: var(--transition);
+    }
+    .flujo-paso.activo {
+        border-color: var(--sena-verde);
+        color: var(--sena-verde);
+        background: #e8f5e9;
+        box-shadow: 0 3px 10px rgba(46,125,50,0.15);
+    }
+    .flujo-paso.completado {
+        border-color: var(--sena-verde);
+        background: var(--sena-verde);
+        color: #fff;
+    }
+    .flujo-paso .num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        background: rgba(0,0,0,0.08);
+        border-radius: 50%;
+        font-size: 0.75rem;
+    }
+    .flujo-paso.completado .num { background: rgba(255,255,255,0.25); }
+    .flujo-flecha { color: #ccc; font-size: 1.1rem; }
+
+    .flujo-pantalla { display: none; animation: flujoFade 0.4s ease; }
+    .flujo-pantalla.activa { display: block; }
+    @keyframes flujoFade {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .flujo-pregunta {
+        background: #fff;
+        border-radius: 14px;
+        padding: 25px 28px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        border-left: 5px solid var(--sena-azul);
+    }
+    .flujo-pregunta .etiqueta-pregunta {
+        display: inline-block;
+        background: var(--sena-azul);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 3px 12px;
+        border-radius: 20px;
+        margin-bottom: 12px;
+    }
+    .flujo-pregunta h3 {
+        color: var(--sena-gris);
+        font-size: 1.15rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+    .flujo-opciones {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+    }
+    .flujo-opcion {
+        background: #fff;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 16px 18px;
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: left;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--sena-gris);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .flujo-opcion:hover {
+        border-color: var(--sena-verde);
+        background: #f1f8e9;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px rgba(46,125,50,0.15);
+    }
+    .flujo-opcion .op-icono { font-size: 1.4rem; flex-shrink: 0; }
+    .flujo-opcion .op-texto { flex-grow: 1; }
+    .flujo-opcion .op-texto strong {
+        display: block;
+        font-size: 1rem;
+        color: var(--sena-gris);
+        margin-bottom: 2px;
+    }
+    .flujo-opcion .op-texto span {
+        font-size: 0.82rem;
+        color: #777;
+        font-weight: 400;
+        font-style: italic;
+    }
+    .flujo-opcion.medir { border-left: 5px solid var(--sena-azul); }
+    .flujo-opcion.comprender { border-left: 5px solid var(--sena-verde); }
+    .flujo-opcion.ambas { border-left: 5px solid #6A1B9A; }
+    .flujo-opcion.si { border-left: 5px solid var(--sena-verde); }
+    .flujo-opcion.no { border-left: 5px solid var(--sena-naranja); }
+
+    /* ====================================================
+       RESULTADO DEL FLUJOGRAMA
+       ==================================================== */
+    .flujo-resultado {
+        background: #fff;
+        border-radius: 14px;
+        padding: 30px 32px;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+        text-align: center;
+        border: 3px solid var(--sena-verde);
+        animation: resultadoFade 0.5s ease;
+    }
+    @keyframes resultadoFade {
+        from { opacity: 0; transform: scale(0.96); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .flujo-resultado.ruta-cuanti { border-color: var(--sena-azul); }
+    .flujo-resultado.ruta-cuali { border-color: var(--sena-verde); }
+    .flujo-resultado.ruta-mixta { border-color: #6A1B9A; }
+
+    .resultado-badge {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 4px 14px;
+        border-radius: 20px;
+        margin-bottom: 15px;
+        color: #fff;
+        background: var(--sena-verde);
+    }
+    .resultado-badge.ruta-cuanti { background: var(--sena-azul); }
+    .resultado-badge.ruta-cuali { background: var(--sena-verde); }
+    .resultado-badge.ruta-mixta { background: #6A1B9A; }
+
+    .flujo-resultado h3 {
+        color: var(--sena-gris);
+        font-size: 1.6rem;
+        margin-bottom: 12px;
+        font-weight: 800;
+    }
+    .flujo-resultado .resultado-ruta {
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin: 15px 0;
+        padding: 14px 24px;
+        border-radius: 12px;
+        display: inline-block;
+    }
+    .resultado-ruta.ruta-cuanti { background: #e3f2fd; color: var(--sena-azul); }
+    .resultado-ruta.ruta-cuali { background: #e8f5e9; color: var(--sena-verde); }
+    .resultado-ruta.ruta-mixta { background: #f3e5f5; color: #6A1B9A; }
+
+    .resultado-justificacion {
+        font-size: 1rem;
+        color: #555;
+        max-width: 700px;
+        margin: 15px auto;
+        line-height: 1.6;
+    }
+
+    .resultado-resumen {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px 24px;
+        margin: 25px auto;
+        max-width: 800px;
+        text-align: left;
+        border-left: 5px solid var(--sena-verde);
+    }
+    .resultado-resumen h4 {
+        color: var(--sena-verde);
+        font-size: 1rem;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .resultado-resumen ul { margin-left: 20px; font-size: 0.92rem; color: #444; }
+    .resultado-resumen li { margin-bottom: 6px; }
+
+    .resultado-pasos-tax {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px 24px;
+        margin: 25px auto;
+        max-width: 850px;
+        text-align: left;
+        border: 2px solid var(--sena-verde);
+        box-shadow: 0 3px 12px rgba(46,125,50,0.08);
+    }
+    .resultado-pasos-tax.ruta-cuanti { border-color: var(--sena-azul); }
+    .resultado-pasos-tax.ruta-cuali { border-color: var(--sena-verde); }
+    .resultado-pasos-tax.ruta-mixta { border-color: #6A1B9A; }
+
+    .resultado-pasos-tax h4 {
+        font-size: 1rem;
+        margin-bottom: 14px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .resultado-pasos-tax.ruta-cuanti h4 { color: var(--sena-azul); }
+    .resultado-pasos-tax.ruta-cuali h4 { color: var(--sena-verde); }
+    .resultado-pasos-tax.ruta-mixta h4 { color: #6A1B9A; }
+
+    .tabla-pasos-niveles {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    .tabla-pasos-niveles thead th {
+        background: #f1f3f5;
+        color: #555;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 10px 12px;
+        text-align: left;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    .tabla-pasos-niveles tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: var(--transition);
+    }
+    .tabla-pasos-niveles tbody tr:last-child { border-bottom: none; }
+    .tabla-pasos-niveles tbody tr:hover { background: #f8f9fa; }
+    .tabla-pasos-niveles tbody td {
+        padding: 12px 12px;
+        vertical-align: top;
+        color: #333;
+    }
+    .tabla-pasos-niveles tbody td:first-child {
+        font-weight: 800;
+        width: 40px;
+        color: #999;
+        text-align: center;
+    }
+    .tabla-pasos-niveles tbody td:nth-child(2) strong {
+        display: block;
+        color: #333;
+        font-size: 0.92rem;
+        margin-bottom: 3px;
+    }
+    .tabla-pasos-niveles tbody td:nth-child(2) span {
+        color: #777;
+        font-size: 0.82rem;
+        font-style: italic;
+    }
+    .tabla-pasos-niveles .nivel-celda {
+        white-space: nowrap;
+        width: 200px;
+    }
+    .tabla-pasos-niveles .nivel-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 0.3px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .tabla-pasos-niveles .nivel-chip.n0 { background: linear-gradient(135deg, var(--nivel0), var(--nivel0-osc)); color: #fff; }
+    .tabla-pasos-niveles .nivel-chip.n1 { background: linear-gradient(135deg, var(--nivel1), var(--nivel1-osc)); color: #fff; }
+    .tabla-pasos-niveles .nivel-chip.n2 { background: linear-gradient(135deg, var(--nivel2), var(--nivel2-osc)); color: #fff; }
+    .tabla-pasos-niveles .nivel-chip.n3 { background: linear-gradient(135deg, var(--nivel3), var(--nivel3-osc)); color: #333; }
+    .tabla-pasos-niveles .nivel-chip.n4 { background: linear-gradient(135deg, var(--nivel4), var(--nivel4-osc)); color: #333; }
+    .tabla-pasos-niveles .nivel-chip.n5 { background: linear-gradient(135deg, var(--nivel5), var(--nivel5-osc)); color: #fff; }
+    .tabla-pasos-niveles .nivel-chip.n6 { background: linear-gradient(135deg, var(--nivel6), var(--nivel6-osc)); color: #333; }
+
+    .nota-al-pie {
+        background: #fff8e1;
+        border-left: 4px solid var(--sena-dorado);
+        border-radius: 0 8px 8px 0;
+        padding: 12px 16px;
+        margin-top: 18px;
+        font-size: 0.85rem;
+        color: #6d4c00;
+        font-style: italic;
+        line-height: 1.5;
+    }
+    .nota-al-pie strong { color: #e65100; }
+
+    .btn-puente-tax {
+        display: inline-block;
+        background: linear-gradient(135deg, var(--sena-verde) 0%, var(--sena-verde-claro) 100%);
+        color: #fff;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+        font-family: inherit;
+        margin-top: 15px;
+        box-shadow: 0 3px 10px rgba(46,125,50,0.25);
+    }
+    .btn-puente-tax:hover {
+        background: linear-gradient(135deg, #1b5e20, var(--sena-verde));
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(46,125,50,0.35);
+    }
+
+    .resultado-puente {
+        background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
+        border-left: 5px solid var(--sena-verde);
+        border-radius: 0 8px 8px 0;
+        padding: 14px 20px;
+        margin: 20px auto;
+        max-width: 850px;
+        text-align: left;
+        font-size: 0.92rem;
+        color: #333;
+    }
+    .resultado-puente strong { color: var(--sena-verde); }
+
+    .resultado-acciones {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+    .btn-reiniciar {
+        background: var(--sena-verde);
+        color: #fff;
+        border: none;
+        padding: 12px 26px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+        font-family: inherit;
+        box-shadow: 0 4px 12px rgba(46,125,50,0.3);
+    }
+    .btn-reiniciar:hover { background: #1b5e20; transform: translateY(-2px); }
+    .btn-reiniciar.azul { background: var(--sena-azul); box-shadow: 0 4px 12px rgba(21,101,192,0.3); }
+    .btn-reiniciar.azul:hover { background: #0d47a1; }
+
+    /* ====================================================
+       ESTILOS DEL ASISTENTE
+       ==================================================== */
+    .subtabs-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 0;
+    }
+    .subtab-btn {
+        background: transparent;
+        border: none;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #777;
+        cursor: pointer;
+        border-bottom: 4px solid transparent;
+        transition: var(--transition);
+        border-radius: 8px 8px 0 0;
+        font-family: inherit;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .subtab-btn:hover { background: #f1f8e9; color: var(--sena-verde); }
+    .subtab-btn.active {
+        color: var(--sena-verde);
+        border-bottom-color: var(--sena-verde);
+        background: #f1f8e9;
+    }
+
+    .subtab-content { display: none; animation: fadeIn 0.4s ease; }
+    .subtab-content.active { display: block; }
+
+    .asistente-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 25px;
+        align-items: start;
+    }
+    @media (max-width: 900px) {
+        .asistente-layout { grid-template-columns: 1fr; }
+    }
+
+    .asistente-sidebar {
+        background: #f8f9fa;
+        border-radius: var(--radius);
+        padding: 20px;
+        position: sticky;
+        top: 20px;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+        border: 1px solid #e9ecef;
+    }
+    .asistente-sidebar h2 {
+        color: var(--sena-verde);
+        font-size: 1.05rem;
+        margin-bottom: 5px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    .asistente-sidebar .version-info {
+        font-size: 0.72rem;
+        color: #999;
+        margin-bottom: 15px;
+        font-style: italic;
+    }
+    .asistente-sidebar .progreso-global {
+        background: #fff;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-size: 0.82rem;
+        color: #555;
+        border: 1px solid #e9ecef;
+    }
+    .asistente-sidebar .progreso-global strong {
+        color: var(--sena-verde);
+        font-size: 1.2rem;
+        display: block;
+    }
+
+    .ruta-actual-box {
+        background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 12px;
+        font-size: 0.82rem;
+        border-left: 4px solid var(--sena-verde);
+        display: none;
+    }
+    .ruta-actual-box.visible { display: block; }
+    .ruta-actual-box strong { color: var(--sena-verde); }
+
+    .paso-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-bottom: 6px;
+        border: 2px solid transparent;
+        background: #fff;
+    }
+    .paso-item:hover { background: #f1f8e9; }
+    .paso-item.activo {
+        background: #e8f5e9;
+        border-color: var(--sena-verde);
+    }
+    .paso-item.completado { background: #e8f5e9; }
+    .paso-num {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+        background: #e0e0e0;
+        color: #666;
+    }
+    .paso-item.completado .paso-num { background: var(--sena-verde); color: #fff; }
+    .paso-item.activo .paso-num { background: var(--sena-azul); color: #fff; }
+    .paso-info { flex: 1; min-width: 0; }
+    .paso-titulo {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--sena-gris);
+        line-height: 1.3;
+    }
+    .paso-madurez {
+        font-size: 0.7rem;
+        margin-top: 3px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .semaforo {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .semaforo.vacio { background: #ef4444; }
+    .semaforo.aprendiendo { background: #F59E0B; }
+    .semaforo.maduro { background: #10B981; }
+
+    .asistente-contenido {
+        background: #fff;
+        border-radius: var(--radius);
+        padding: 30px 35px;
+        min-height: 500px;
+        border: 1px solid #e9ecef;
+    }
+
+    .paso-header {
+        border-bottom: 3px solid var(--sena-verde);
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+    .paso-header .nivel-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        color: #fff;
+    }
+    .paso-header h2 {
+        color: var(--sena-verde);
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .paso-header .paso-subtitulo {
+        color: #666;
+        font-size: 0.92rem;
+        font-style: italic;
+    }
+
+    .madurez-box {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.88rem;
+        border-left: 4px solid var(--sena-dorado);
+    }
+    .madurez-box.vacio { border-left-color: #ef4444; }
+    .madurez-box.aprendiendo { border-left-color: #F59E0B; }
+    .madurez-box.maduro { border-left-color: #10B981; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--sena-gris);
+        margin-bottom: 8px;
+    }
+    .form-group label .hint {
+        font-weight: 400;
+        color: #888;
+        font-size: 0.82rem;
+        font-style: italic;
+    }
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 0.92rem;
+        color: var(--sena-gris);
+        transition: var(--transition);
+        resize: vertical;
+    }
+    .form-group input[type="text"]:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--sena-verde);
+        box-shadow: 0 0 0 3px rgba(46,125,50,0.1);
+    }
+    .form-group textarea { min-height: 100px; line-height: 1.5; }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 22px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        font-family: inherit;
+        text-decoration: none;
+    }
+    .btn-primary {
+        background: var(--sena-verde);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(46,125,50,0.25);
+    }
+    .btn-primary:hover {
+        background: #1b5e20;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(46,125,50,0.35);
+    }
+    .btn-secondary {
+        background: var(--sena-azul);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(21,101,192,0.25);
+    }
+    .btn-secondary:hover { background: #0d47a1; transform: translateY(-2px); }
+    .btn-warning { background: var(--sena-naranja); color: #fff; }
+    .btn-warning:hover { background: #bf360c; }
+    .btn-success { background: #0c6b4b; color: #fff; }
+    .btn-success:hover { background: #0a5740; }
+    .btn-outline {
+        background: transparent;
+        border: 2px solid #e0e0e0;
+        color: #666;
+    }
+    .btn-outline:hover { background: #f1f3f5; border-color: #ccc; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .borrador-box {
+        background: #f0f6fe;
+        border: 2px dashed var(--sena-azul);
+        border-radius: 10px;
+        padding: 20px 22px;
+        margin-top: 20px;
+        display: none;
+    }
+    .borrador-box.visible { display: block; }
+    .borrador-box h3 {
+        color: var(--sena-azul);
+        font-size: 1.05rem;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .borrador-contenido {
+        background: #fff;
+        border-radius: 8px;
+        padding: 16px 18px;
+        font-size: 0.95rem;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        color: #333;
+        max-height: 500px;
+        overflow-y: auto;
+        border: 1px solid #d9e4ed;
+    }
+    .tokens-info {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 10px;
+        font-style: italic;
+    }
+
+    .herramientas-box {
+        background: #1a1a2e;
+        color: #e0e0e0;
+        border-radius: 10px;
+        padding: 15px 18px;
+        margin-top: 20px;
+        font-size: 0.88rem;
+    }
+    .herramientas-box::before {
+        content: '🤖 HERRAMIENTAS IA SUGERIDAS';
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: #81c784;
+        margin-bottom: 10px;
+    }
+    .herramientas-box ul { list-style: none; padding: 0; margin: 0; }
+    .herramientas-box li {
+        padding: 5px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        font-size: 0.85rem;
+    }
+    .herramientas-box li:last-child { border-bottom: none; }
+    .herramientas-box li strong { color: #64b5f6; }
+
+    .info-box {
+        background: #f0f6fe;
+        border-radius: 10px;
+        padding: 20px 22px;
+        border-left: 5px solid var(--sena-azul);
+        margin-top: 20px;
+    }
+    .info-box h3 {
+        color: var(--sena-azul);
+        margin-bottom: 12px;
+        font-size: 1.05rem;
+    }
+    .info-box ol, .info-box ul { margin-left: 20px; font-size: 0.92rem; color: #444; }
+    .info-box p { font-size: 0.92rem; color: #444; margin-bottom: 8px; }
+    .info-box .nota {
+        margin-top: 12px;
+        font-style: italic;
+        color: #666;
+        font-size: 0.88rem;
+    }
+
+    .pdf-preview {
+        background: #fff;
+        border-radius: 10px;
+        padding: 30px 35px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        margin-top: 20px;
+        max-height: 600px;
+        overflow-y: auto;
+        font-size: 0.9rem;
+        border: 1px solid #e9ecef;
+    }
+    .pdf-preview h2 {
+        color: var(--sena-verde);
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 8px;
+    }
+    .pdf-preview h3 {
+        color: var(--sena-azul);
+        font-size: 1.05rem;
+        margin-top: 20px;
+        margin-bottom: 8px;
+    }
+    .pdf-preview p {
+        margin-bottom: 10px;
+        line-height: 1.6;
+        color: #333;
+        white-space: pre-wrap;
+    }
+    .pdf-preview .empty { color: #999; font-style: italic; }
+
+    /* ====================================================
+       🆕 MATRIZ DEL MARCO LÓGICO
+       ==================================================== */
+    .matriz-ml-wrap {
+        background: #fff;
+        border-radius: 10px;
+        padding: 22px 24px;
+        margin-top: 25px;
+        border: 2px solid var(--sena-verde);
+        box-shadow: 0 3px 12px rgba(46,125,50,0.08);
+        display: none;
+    }
+    .matriz-ml-wrap.visible { display: block; }
+    .matriz-ml-wrap h3 {
+        color: var(--sena-verde);
+        font-size: 1.1rem;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .matriz-ml-wrap .matriz-ml-sub {
+        font-size: 0.85rem;
+        color: #666;
+        font-style: italic;
+        margin-bottom: 18px;
+    }
+
+    .matriz-ml-tabla {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.82rem;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        margin-bottom: 18px;
+    }
+    .matriz-ml-tabla thead th {
+        background: linear-gradient(135deg, var(--sena-verde), var(--sena-verde-claro));
+        color: #fff;
+        padding: 12px 14px;
+        text-align: left;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border-right: 1px solid rgba(255,255,255,0.2);
+    }
+    .matriz-ml-tabla thead th:last-child { border-right: none; }
+
+    .matriz-ml-tabla tbody tr {
+        border-bottom: 1px solid #e0e0e0;
+        transition: var(--transition);
+    }
+    .matriz-ml-tabla tbody tr:last-child { border-bottom: none; }
+    .matriz-ml-tabla tbody tr:hover { background: #f8f9fa; }
+
+    .matriz-ml-tabla tbody td {
+        padding: 12px 14px;
+        vertical-align: top;
+        color: #333;
+        border-right: 1px solid #f0f0f0;
+    }
+    .matriz-ml-tabla tbody td:last-child { border-right: none; }
+
+    .matriz-ml-tabla .ml-nivel {
+        font-weight: 800;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        width: 110px;
+    }
+    .matriz-ml-tabla .ml-nivel.fin { color: var(--sena-azul); }
+    .matriz-ml-tabla .ml-nivel.proposito { color: var(--sena-verde); }
+    .matriz-ml-tabla .ml-nivel.componente { color: #00838F; }
+    .matriz-ml-tabla .ml-nivel.actividad { color: var(--sena-naranja); }
+
+    /* Panel de advertencias */
+    .advertencias-ml {
+        background: #fff3e0;
+        border-left: 5px solid var(--sena-naranja);
+        border-radius: 0 8px 8px 0;
+        padding: 14px 18px;
+        margin-top: 18px;
+        display: none;
+    }
+    .advertencias-ml.visible { display: block; }
+    .advertencias-ml h4 {
+        color: var(--sena-naranja);
+        font-size: 0.95rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .advertencias-ml ul {
+        margin-left: 20px;
+        font-size: 0.88rem;
+        color: #5D4037;
+    }
+    .advertencias-ml li { margin-bottom: 6px; }
+
+    .validacion-ok {
+        background: #e8f5e9;
+        border-left: 5px solid var(--sena-verde);
+        border-radius: 0 8px 8px 0;
+        padding: 14px 18px;
+        margin-top: 18px;
+        color: #1b5e20;
+        font-size: 0.92rem;
+        display: none;
+    }
+    .validacion-ok.visible { display: block; }
+    .validacion-ok strong { color: var(--sena-verde); }
+
+    .declaracion-enfoque {
+        background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
+        border: 2px dashed var(--sena-verde);
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-top: 20px;
+        font-size: 0.9rem;
+        color: #333;
+    }
+    .declaracion-enfoque::before {
+        content: '📐 DECLARACIÓN DE ENFOQUE METODOLÓGICO';
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: var(--sena-verde);
+        margin-bottom: 8px;
+    }
+
+    /* Toggle informativo del ML */
+    .toggle-btn.ml-tab { background: linear-gradient(135deg, var(--sena-verde), #1b5e20); }
+
+    /* ====================================================
+       TOAST / LOADING
+       ==================================================== */
+    .toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: var(--sena-gris);
+        color: #fff;
+        padding: 14px 24px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 9999;
+        max-width: 90%;
+        text-align: center;
+    }
+    .toast.visible {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    .toast.success { background: var(--sena-verde); }
+    .toast.error { background: var(--sena-rojo); }
+    .toast.info { background: var(--sena-azul); }
+
+    .loading-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.4);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9998;
+        backdrop-filter: blur(2px);
+    }
+    .loading-overlay.visible { display: flex; }
+    .loading-spinner {
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .spinner {
+        width: 45px;
+        height: 45px;
+        border: 4px solid #e0e0e0;
+        border-top-color: var(--sena-verde);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 15px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-spinner p {
+        color: var(--sena-gris);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* ====================================================
+       FOOTER
+       ==================================================== */
+    .footer {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 2px solid #e0e0e0;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #999;
+    }
+    .footer strong { color: var(--sena-verde); }
+
+    /* ====================================================
+       RESPONSIVE
+       ==================================================== */
+    @media (max-width: 768px) {
+        body { padding: 15px 10px; }
+        .header h1 { font-size: 1.4rem; }
+        .header .subtitulo { font-size: 0.9rem; }
+        .menu-superior { grid-template-columns: 1fr; gap: 10px; }
+        .menu-card .menu-card-header { padding: 14px; }
+        .menu-card .menu-card-header h2 { font-size: 0.9em; }
+        .contenido-panel { padding: 22px 18px; }
+        .contenido-panel .panel-titulo { font-size: 1.15rem; }
+        .toggle-btn { padding: 14px 18px; font-size: 0.9em; }
+        .toggle-content { padding: 15px; }
+        .tools-grid { grid-template-columns: 1fr; }
+        .tabla-integradora { font-size: 0.75rem; }
+        .tabla-integradora thead th,
+        .tabla-integradora tbody td { padding: 8px; }
+        .ia-sugeridas li strong { min-width: auto; display: block; }
+        .verbo-nivel { font-size: 0.95rem; padding: 6px 16px; }
+        .flujograma-wrap { padding: 20px 16px; }
+        .flujo-pregunta { padding: 18px 16px; }
+        .flujo-pregunta h3 { font-size: 1rem; }
+        .flujo-opciones { grid-template-columns: 1fr; }
+        .flujo-resultado { padding: 20px 18px; }
+        .flujo-resultado h3 { font-size: 1.2rem; }
+        .flujo-resultado .resultado-ruta { font-size: 1.15rem; padding: 10px 14px; }
+        .resultado-pasos-tax { padding: 16px 18px; }
+        .tabla-pasos-niveles { font-size: 0.82rem; }
+        .tabla-pasos-niveles thead th { font-size: 0.68rem; padding: 8px; }
+        .tabla-pasos-niveles tbody td { padding: 10px 8px; }
+        .tabla-pasos-niveles .nivel-celda { width: auto; white-space: normal; }
+        .tabla-pasos-niveles .nivel-chip { font-size: 0.7rem; padding: 4px 10px; }
+        .asistente-layout { grid-template-columns: 1fr; }
+        .asistente-sidebar { position: static; max-height: none; }
+        .asistente-contenido { padding: 20px 18px; }
+        .subtabs-nav { flex-direction: column; }
+        .subtab-btn { justify-content: center; }
+        .matriz-ml-tabla { font-size: 0.72rem; }
+        .matriz-ml-tabla thead th { padding: 8px 6px; font-size: 0.62rem; }
+        .matriz-ml-tabla tbody td { padding: 8px 6px; }
+    }
+
+    /* ====================================================
+       IMPRESIÓN
+       ==================================================== */
+    @media print {
+        body { background: #fff; padding: 0; }
+        .container { box-shadow: none; padding: 20px; }
+        .header { border-bottom-color: #000; }
+        .menu-superior { display: none; }
+        .contenido-panel { box-shadow: none; padding: 0; }
+        .card-seccion { display: block !important; page-break-inside: avoid; margin-bottom: 30px; }
+        .card-seccion .panel-titulo { color: #2E7D32 !important; }
+        .toggle-content { display: block !important; max-height: none !important; }
+        .toggle-btn::after { display: none; }
+        .footer { color: #333; }
+        .zoom-controles { display: none; }
+        .zoom-viewport { height: auto; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+<!-- HEADER -->
+<div class="header">
+<div class="badge">Investigación Pedagógica Aumentada con IA</div>
+<h1>🎓 Taxonomía Emergente + Construir Anteproyecto</h1>
+<p class="subtitulo">"7 niveles de pensamiento complejo · 3 rutas metodológicas · 9 pasos operativos · 1 enfoque de Marco Lógico"</p>
+</div>
+<!-- MENÚ SUPERIOR: 5 cards -->
+<div class="menu-superior"><div class="menu-card active" data-target="seccion1">
+<div class="menu-card-header">
+<h2>📖 El Libro y el Autor</h2>
+<p>Marco referencial: Sampieri</p>
+</div>
+</div><div class="menu-card" data-target="seccion2">
+<div class="menu-card-header">
+<h2>🔄 Taxonomía Emergente</h2>
+<p>Los 7 niveles del investigador</p>
+</div>
+</div><div class="menu-card" data-target="seccionRutas">
+<div class="menu-card-header">
+<h2>🧭 ¿Qué ruta me corresponde?</h2>
+<p>Flujograma de decisión</p>
+</div>
+</div><div class="menu-card" data-target="seccion3">
+<div class="menu-card-header">
+<h2>🤖 Herramientas IA + Marco Lógico</h2>
+<p>Apoyo teórico y metodológico</p>
+</div>
+</div><div class="menu-card" data-target="seccionConstruir">
+<div class="menu-card-header">
+<h2>🧩 Herramienta IA</h2>
+<p>Espacio para futura implementación</p>
+</div>
+</div></div>
+<!-- CONTENIDO PANEL -->
+<div class="contenido-panel">
+<!-- ============================================
+             SECCIÓN 1: El Libro y el Autor
+             ============================================ -->
+<div class="card-seccion" id="seccion1" style="display: block;">
+<h2 class="panel-titulo">📖 El Libro y el Autor</h2>
+<p class="panel-subtitulo">Marco referencial: Roberto Hernández Sampieri y su obra fundamental</p>
+<button class="toggle-btn">👤 Sobre el Autor</button>
+<div class="toggle-content">
+<div class="toggle-media">
+<img alt="Roberto Hernández Sampieri" src="img/hernandezsampieri.jpg"/>
+<div class="toggle-media-texto">
+<h3>Roberto Hernández Sampieri</h3>
+<p>Licenciado en comunicación por la Universidad Anáhuac, maestro en Administración y diplomado en consultoría. Director del Centro de Investigación y del Doctorado en Administración de la Universidad de Celaya.</p>
+<p>Es considerado uno de los autores más influyentes en metodología de la investigación en Iberoamérica, con su obra citada por más de 121,000 investigadores.</p>
+<div class="source">
+<strong>Fuente:</strong> Universidad de Guanajuato, Dialnet, Google Académico
+                        </div>
+</div>
+</div>
+</div>
+<button class="toggle-btn">📕 Sobre el Libro</button>
+<div class="toggle-content">
+<div class="toggle-media">
+<img alt="Metodología de la Investigación - Hernández Sampieri" src="img/libro.jpg"/>
+<div class="toggle-media-texto">
+<h3>Metodología de la Investigación</h3>
+<p>Obra escrita con el propósito definido de <strong>guiar paso a paso a maestros y estudiantes sobre cómo realizar investigación científica</strong> de manera rigurosa, sistemática y estructurada.</p>
+<p>Es el texto académico más consultado y valorado en Iberoamérica para aprender metodología de investigación.</p>
+<div class="highlight">
+<strong>Evolución:</strong> Las ediciones clásicas (5ª y 6ª) fueron coescritas con Fernández Collado y Baptista Lucio. En 2018 se publicó "Metodología de la investigación: Las rutas cuantitativa, cualitativa y mixta" con Christian Mendoza, actualizando y sustituyendo las ediciones anteriores.
+                        </div>
+<div class="source">
+<strong>Fuentes:</strong> Hernández Sampieri et al. (2014, 2018), Universidad Veracruzana, UNAM
+                        </div>
+</div>
+</div>
+</div>
+<button class="toggle-btn">🔀 Las 3 Rutas de Investigación</button>
+<div class="toggle-content">
+<h3>Enfoques Metodológicos</h3>
+<ul>
+<li>🔵 <strong>Cuantitativo:</strong> Utiliza recolección y análisis de datos numéricos y estadísticos para probar hipótesis, establecer patrones y medir fenómenos de manera objetiva.</li>
+<li>🟢 <strong>Cualitativo:</strong> Se centra en comprender fenómenos en su contexto natural, interpretando significados, experiencias y perspectivas sin depender de mediciones numéricas.</li>
+<li>🟣 <strong>Mixto:</strong> Combina las fortalezas de ambos enfoques en un mismo estudio para obtener una comprensión más profunda, rica y completa.</li>
+</ul>
+<div class="source">
+<strong>Fuente:</strong> Hernández-Sampieri &amp; Mendoza (2018)
+                </div>
+<img alt="Las 3 rutas de investigación: cuantitativa, cualitativa y mixta" class="imagen-full" src="img/rutas.jpg"/>
+</div>
+</div>
+<!-- ============================================
+             SECCIÓN 2: Taxonomía Emergente
+             ============================================ -->
+<div class="card-seccion" id="seccion2" style="display: none;">
+<h2 class="panel-titulo">🔄 Taxonomía Emergente para la Investigación con IA</h2>
+<p class="panel-subtitulo">Los 7 niveles del investigador aumentado · De "Transferir / Divulgar" (N6) a "Explorar / Situar" (N0)</p>
+<button class="toggle-btn">❓ ¿Qué es la Taxonomía Emergente?</button>
+<div class="toggle-content">
+<h3>Una respuesta a la IA en la educación</h3>
+<p>Cuando la IA asume tareas cognitivas que antes eran del investigador —buscar, resumir, redactar, analizar—, los <strong>niveles de pensamiento del investigador humano deben redefinirse</strong>. No se trata de usar IA para hacer lo mismo más rápido, sino de <strong>reposicionar al investigador</strong> en un nivel superior de responsabilidad cognitiva y ética.</p>
+<p>La <strong>Taxonomía Emergente para la Investigación con IA</strong> propone 7 niveles de pensamiento complejo, cada uno con un verbo propio, un sustento en el marco de Sampieri y una declaración explícita de <strong>lo que NO se delega a la IA</strong>.</p>
+<div class="highlight">
+<strong>Idea fuerza:</strong> La IA asiste, pero hay decisiones cognitivas y éticas que le pertenecen al investigador humano. La taxonomía no es un listado de tareas: es una <strong>postura pedagógica</strong>.
+                </div>
+<div class="zoom-wrap">
+<div class="zoom-controles">
+<button class="zoom-btn" onclick="zoomOut()" title="Alejar">−</button>
+<button class="zoom-btn zoom-reset" onclick="zoomReset()" title="Tamaño original">1:1</button>
+<button class="zoom-btn" onclick="zoomIn()" title="Acercar">+</button>
+<span class="zoom-nivel" id="zoomNivel">100%</span>
+</div>
+<div class="zoom-viewport" id="zoomViewport">
+<img alt="Infografía de la Taxonomía Emergente" class="zoom-img" draggable="false" id="zoomImg" src="img/taxoemergente.jpg"/>
+</div>
+<p class="zoom-hint">💡 Usa los botones <strong>− / +</strong> para ajustar el zoom (hasta <strong>400%</strong>). Cuando la imagen está ampliada, puedes <strong>arrastrarla</strong>. <strong>Doble clic</strong> para alternar 100% ↔ 200%.</p>
+</div>
+</div>
+<div class="highlight" style="background:#fff3e0; border-left-color:var(--sena-naranja); color:#444;">
+<strong>💡 Cómo leer esta taxonomía:</strong> La escalera se recorre <strong>de arriba hacia abajo</strong>: del Nivel 6 (Transferir / Divulgar) al Nivel 0 (Explorar / Situar). Cada nivel tiene un <strong>verbo de pensamiento complejo</strong>, las actividades clave, su <strong>sustento en Sampieri</strong> y una declaración explícita de <strong>lo que el investigador NO delega en la IA</strong>.
+            </div>
+<!-- NIVEL 6 -->
+<button class="toggle-btn nivel6">🟡 Nivel 6: Transferir / Divulgar</button>
+<div class="toggle-content" style="border-left-color:var(--nivel6-osc);">
+<div class="nivel-grid">
+<div class="nivel-col-principal">
+<span class="verbo-nivel nivel6">TRANSFERIR / DIVULGAR</span>
+<div class="pregunta-investigador">¿Cómo lo comparto y lo hago útil?</div>
+<h4>🎯 Objetivo del nivel</h4>
+<p>Difundir los resultados a la comunidad académica, científica y educativa, garantizando visibilidad, acceso e impacto del conocimiento generado.</p>
+<h4>📋 Actividades clave</h4>
+<ul>
+<li>📄 <strong>Preparación de productos académicos:</strong> Artículos científicos, capítulos de libro, memorias de evento o documentos técnicos.</li>
+<li>🎨 <strong>Visualización y comunicación visual:</strong> Infografías, gráficos, diagramas, mapas conceptuales.</li>
+<li>🌐 <strong>Divulgación en plataformas:</strong> ResearchGate, Google Scholar, repositorios institucionales del SENA.</li>
+<li>🎤 <strong>Socialización en eventos:</strong> Congresos, seminarios, simposios, espacios institucionales.</li>
+<li>📚 <strong>Transferencia a la comunidad educativa:</strong> Guías metodológicas, manuales, cartillas, REA.</li>
+<li>🌍 <strong>Traducción multilingüe (opcional):</strong> Con DeepL o Google Translate, verificando precisión terminológica.</li>
+</ul>
+<div class="no-delega">
+<p>La autoría, la ética y la transferencia real. La IA puede traducir o diagramar, pero <strong>la firma, la responsabilidad ética y el compromiso con la comunidad son tuyos</strong>.</p>
+</div>
+<div class="ia-sugeridas">
+<ul>
+<li><strong><a href="https://paperpal.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Paperpal</a> / <a href="https://www.trinka.ai/es/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Trinka</a></strong> Corrección de estilo académico para publicación.</li>
+<li><strong><a href="https://www.midjourney.com/home" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Midjourney</a> / <a href="https://chatgpt.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">DALL-E</a> / Canva IA</strong> Visualizaciones e infografías.</li>
+<li><strong><a href="https://ppt.ai/es/tome-ai-ppt" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Tome AI</a> / <a href="https://gamma.app/es" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Gamma</a></strong> Presentaciones visuales.</li>
+<li><strong><a href="https://www.deepl.com/es/translator" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">DeepL</a> / <a href="https://translate.google.com/?hl=es&amp;sl=fr&amp;tl=es&amp;op=translate" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Google Translate</a></strong> Traducción asistida.</li>
+<li><strong><a href="https://www.researchgate.net/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">ResearchGate</a> / <a href="https://scholar.google.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Google Scholar</a></strong> Plataformas de divulgación.</li>
+</ul>
+</div>
+</div>
+<aside class="nivel-col-sampieri">
+<blockquote>"La investigación no termina en el informe: el conocimiento se comparte, se discute y se transforma en beneficio de la comunidad."</blockquote>
+<p style="font-size:0.85rem; color:#555;"><em>— Extensión del marco sampieriano hacia la divulgación</em></p>
+<div class="correspondencia">
+<strong>Correspondencia sampieriana</strong>
+                            Más allá del anteproyecto: coherente con la ética del investigador y la responsabilidad social del conocimiento.
+                        </div>
+</aside>
+</div>
+</div>
+<!-- NIVEL 5 -->
+<button class="toggle-btn nivel5">🟣 Nivel 5: Evaluar</button>
+<div class="toggle-content" style="border-left-color:var(--nivel5-osc);">
+<div class="nivel-grid">
+<div class="nivel-col-principal">
+<span class="verbo-nivel nivel5">EVALUAR</span>
+<div class="pregunta-investigador">¿Qué impacto tuvo y qué sigue?</div>
+<h4>🎯 Objetivo del nivel</h4>
+<p>Evaluar el impacto y la sostenibilidad del proyecto, documentar lecciones aprendidas y proyectar nuevos ciclos.</p>
+<h4>📋 Actividades clave</h4>
+<ul>
+<li>📊 <strong>Evaluación del proyecto:</strong> Medir impacto en la práctica pedagógica, en la formación de aprendices y en el sector productivo.</li>
+<li>📝 <strong>Análisis de lecciones aprendidas:</strong> Reflexionar sobre el proceso metodológico, identificar aciertos y dificultades.</li>
+<li>🚀 <strong>Proyección y escalamiento:</strong> Definir si el proyecto se replica en otros contextos o genera nuevas líneas de investigación.</li>
+</ul>
+<div class="no-delega">
+<p>El juicio sobre el impacto y la proyección. La IA puede calcular métricas, pero <strong>la valoración de la pertinencia y la viabilidad es una decisión ética y pedagógica tuya</strong>.</p>
+</div>
+<div class="ia-sugeridas">
+<ul>
+<li><strong><a href="https://julius.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Julius AI</a></strong> Análisis de impacto y métricas.</li>
+<li><strong><a href="https://www.notion.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Notion AI</a></strong> Documentación de lecciones aprendidas.</li>
+<li><strong><a href="https://copilot.com/es-mx/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">MS Copilot (Excel)</a></strong> Tableros de evaluación.</li>
+<li><strong><a href="https://chatgpt.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">ChatGPT</a> / <a href="https://claude.ai/new" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Claude</a></strong> Reflexión guiada sobre el proceso metodológico.</li>
+</ul>
+</div>
+</div>
+<aside class="nivel-col-sampieri">
+<blockquote>"La investigación no es lineal; se vuelve a las etapas previas para lograr coherencia y generar nuevos ciclos."</blockquote>
+<p style="font-size:0.85rem; color:#555;"><em>— Sampieri, nota clave del autor: el proceso es iterativo</em></p>
+<div class="correspondencia">
+<strong>Correspondencia sampieriana</strong>
+                            Cierre iterativo y mejora continua, retroalimentando el Nivel 0.
+                        </div>
+</aside>
+</div>
+</div>
+<!-- NIVEL 4 -->
+<button class="toggle-btn nivel4">🟠 Nivel 4: Interpretar / Comunicar</button>
+<div class="toggle-content" style="border-left-color:var(--nivel4-osc);">
+<div class="nivel-grid">
+<div class="nivel-col-principal">
+<span class="verbo-nivel nivel4">INTERPRETAR / COMUNICAR</span>
+<div class="pregunta-investigador">¿Qué significan los hallazgos?</div>
+<h4>🎯 Objetivo del nivel</h4>
+<p>Analizar los resultados, contrastarlos con el marco teórico, redactar el informe final y socializar los hallazgos.</p>
+<h4>📋 Actividades clave</h4>
+<ul>
+<li>🔬 <strong>Análisis de datos:</strong> Técnicas estadísticas (cuanti) o análisis de contenido (cuali); contrastar con el marco teórico.</li>
+<li>📝 <strong>Elaboración del documento final:</strong> Redactar el informe con normas APA o colombianas, respetando derechos de autor y ética.</li>
+<li>🎤 <strong>Socialización y sustentación:</strong> Presentar resultados en espacios académicos del SENA.</li>
+<li>📦 <strong>Transferencia de conocimiento:</strong> Generar artículos, ponencias o guías metodológicas.</li>
+</ul>
+<div class="no-delega">
+<p>El sentido, la argumentación y la voz propia. La IA puede redactar borradores, pero <strong>el significado de los hallazgos y la interpretación crítica son tuyos</strong>.</p>
+</div>
+<div class="ia-sugeridas">
+<ul>
+<li><strong><a href="https://julius.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Julius AI</a></strong> Análisis estadístico y generación de gráficos.</li>
+<li><strong><a href="https://dovetail.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Dovetail</a> / NVivo</strong> Análisis de contenido cualitativo.</li>
+<li><strong><a href="https://paperpal.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Paperpal</a> / <a href="https://www.trinka.ai/es/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Trinka</a></strong> Corrección de estilo académico.</li>
+<li><strong><a href="https://www.zotero.org/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Zotero</a></strong> Gestión de referencias bibliográficas.</li>
+<li><strong><a href="https://gamma.app/es" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Gamma</a> / <a href="https://ppt.ai/es/tome-ai-ppt" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Tome</a></strong> Presentaciones con IA para socialización.</li>
+</ul>
+</div>
+</div>
+<aside class="nivel-col-sampieri">
+<blockquote>"El investigador debe interpretar los resultados y comunicarlos con rigor, transparencia y ética."</blockquote>
+<p style="font-size:0.85rem; color:#555;"><em>— Sampieri, Cap. 11 y 13: Análisis de datos y Elaboración del reporte</em></p>
+<div class="correspondencia">
+<strong>Correspondencia sampieriana</strong>
+                            Paso 9: Anteproyecto consolidado, extendido hacia el informe final y la socialización.
+                        </div>
+</aside>
+</div>
+</div>
+<!-- NIVEL 3 -->
+<button class="toggle-btn nivel3">🟩 Nivel 3: Aplicar / Verificar</button>
+<div class="toggle-content" style="border-left-color:var(--nivel3-osc);">
+<div class="nivel-grid">
+<div class="nivel-col-principal">
+<span class="verbo-nivel nivel3">APLICAR / VERIFICAR</span>
+<div class="pregunta-investigador">¿Los datos son confiables y válidos?</div>
+<h4>🎯 Objetivo del nivel</h4>
+<p>Implementar la investigación en el contexto real, recolectar los datos y validar los instrumentos y procedimientos.</p>
+<h4>📋 Actividades clave</h4>
+<ul>
+<li>📋 <strong>Aplicación de instrumentos:</strong> Recolectar información en el aula o contexto productivo.</li>
+<li>💾 <strong>Gestión de la información:</strong> Procesar datos con bases de datos, ofimática y motores de búsqueda.</li>
+<li>✅ <strong>Validación y verificación:</strong> Coherencia, confiabilidad y validez (juicio de expertos, rúbricas, listas de chequeo).</li>
+<li>📈 <strong>Seguimiento y ajustes:</strong> Monitorear cronograma y presupuesto, ajustar metodología si es necesario.</li>
+</ul>
+<div class="no-delega">
+<p>La interpretación contextual y la validez de los datos. La IA puede procesar, pero <strong>la validez se juzga desde el contexto y el marco teórico</strong>.</p>
+</div>
+<div class="ia-sugeridas">
+<ul>
+<li><strong><a href="https://dovetail.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Dovetail</a> / NVivo (IA)</strong> Análisis cualitativo y codificación.</li>
+<li><strong><a href="https://julius.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Julius AI</a></strong> Análisis estadístico de datos recolectados.</li>
+<li><strong><a href="https://otter.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Otter.ai</a> / <a href="https://fireflies.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Fireflies.ai</a></strong> Transcripción de entrevistas.</li>
+<li><strong><a href="https://copilot.com/es-mx/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">MS Copilot (Excel)</a></strong> Procesamiento de datos y tablas dinámicas.</li>
+</ul>
+</div>
+</div>
+<aside class="nivel-col-sampieri">
+<blockquote>"Recolectar datos implica elaborar un plan detallado de procedimientos que conduzcan a reunir datos con un propósito específico."</blockquote>
+<p style="font-size:0.85rem; color:#555;"><em>— Sampieri, Cap. 9: Recolección de datos cuantitativos</em></p>
+<div class="correspondencia">
+<strong>Correspondencia sampieriana</strong>
+                            Aplicación del diseño definido en los Pasos 5-8.
+                        </div>
+</aside>
+</div>
+</div>
+<!-- NIVEL 2 -->
+<button class="toggle-btn nivel2">🟢 Nivel 2: Diseñar / Fundamentar</button>
+<div class="toggle-content" style="border-left-color:var(--nivel2-osc);">
+<div class="nivel-grid">
+<div class="nivel-col-principal">
+<span class="verbo-nivel nivel2">DISEÑAR / FUNDAMENTAR</span>
+<div class="pregunta-investigador">¿Cómo voy a responder esa pregunta?</div>
+<h4>🎯 Objetivo del nivel</h4>
+<p>Construir el marco referencial y definir la ruta metodológica: enfoque, método, diseño, instrumentos y plan de análisis.</p>
+<h4>📋 Actividades clave</h4>
+<ul>
+<li>📚 <strong>Construcción del marco referencial:</strong> Estado del arte, bases conceptuales, legales y referenciales.</li>
+<li>🎯 <strong>Selección del enfoque y método:</strong> Cuanti, cuali o mixto; Investigación-Acción, Estudio de Caso, Fenomenología, etc.</li>
+<li>🛠️ <strong>Diseño de instrumentos:</strong> Encuestas, guías de observación, rúbricas, portafolios, entrevistas.</li>
+<li>📅 <strong>Planificación operativa:</strong> Cronograma (Gantt), recursos y presupuesto.</li>
+</ul>
+<div class="no-delega">
+<p>El diseño metodológico y la coherencia interna. La IA puede sugerir métodos, pero <strong>la coherencia entre pregunta, marco, diseño e instrumentos es una decisión epistemológica tuya</strong>.</p>
+</div>
+<div class="ia-sugeridas">
+<ul>
+<li><strong><a href="https://elicit.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Elicit</a> / <a href="https://consensus.app/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Consensus</a></strong> Revisión sistemática de literatura.</li>
+<li><strong><a href="https://chatgpt.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">ChatPDF</a> / <a href="https://www.humata.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Humata</a></strong> Preguntas específicas sobre PDFs.</li>
+<li><strong><a href="https://julius.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Julius AI</a></strong> Análisis de datos y planificación estadística.</li>
+<li><strong>Qualtrics / <a href="https://www.typeform.com/es/ai" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Typeform (IA)</a></strong> Redacción de ítems de encuestas.</li>
+<li><strong><a href="https://www.notion.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Notion AI</a></strong> Cronogramas y checklists.</li>
+</ul>
+</div>
+</div>
+<aside class="nivel-col-sampieri">
+<blockquote>"El marco teórico orienta el estudio y define las variables; el diseño es la estrategia para responder la pregunta."</blockquote>
+<p style="font-size:0.85rem; color:#555;"><em>— Sampieri, Cap. 4 y 6: Marco teórico y Diseños de investigación</em></p>
+<div class="correspondencia">
+<strong>Correspondencia sampieriana</strong>
+                            Pasos 3, 4 y 5-8: Marco Teórico + Enfoque Metodológico + Diseño y Planificación.
+                        </div>
+</aside>
+</div>
+</div>
+<!-- NIVEL 1 -->
+<button class="toggle-btn nivel1">🟦 Nivel 1: Formular / Delimitar</button>
+<div class="toggle-content" style="border-left-color:var(--nivel1-osc);">
+<div class="nivel-grid">
+<div class="nivel-col-principal">
+<span class="verbo-nivel nivel1">FORMULAR / DELIMITAR</span>
+<div class="pregunta-investigador">¿Qué pregunta orienta mi búsqueda?</div>
+<h4>🎯 Objetivo del nivel</h4>
+<p>Convertir la situación problémica en una pregunta de investigación clara, precisa, factible y éticamente viable, con objetivos y justificación argumentada.</p>
+<h4>📋 Actividades clave</h4>
+<ul>
+<li>🔍 <strong>Diagnóstico situacional:</strong> Analizar el entorno formativo con técnicas de diagnóstico.</li>
+<li>❓ <strong>Planteamiento del problema:</strong> Definir pregunta de investigación e hipótesis (si aplica).</li>
+<li>🎯 <strong>Definición del objeto de estudio:</strong> Precisar qué se va a investigar.</li>
+<li>📝 <strong>Establecimiento de objetivos:</strong> Objetivo general y específicos con taxonomía de verbos.</li>
+<li>💡 <strong>Justificación del proyecto:</strong> Argumentar el impacto social, pedagógico y productivo.</li>
+</ul>
+<div class="no-delega">
+<p>La pregunta de investigación, la justificación y los objetivos. La IA puede ayudar a estructurarlos, pero <strong>la pregunta nace de tu lectura del contexto</strong>.</p>
+</div>
+<div class="ia-sugeridas">
+<ul>
+<li><strong><a href="https://www.semanticscholar.org/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Semantic Scholar</a></strong> Buscador académico con IA y filtrado semántico.</li>
+<li><strong><a href="https://consensus.app/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Consensus</a></strong> Respuestas basadas en evidencia científica verificada.</li>
+<li><strong><a href="https://elicit.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Elicit</a></strong> Extrae métodos y resultados de millones de artículos.</li>
+<li><strong><a href="https://www.researchrabbit.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">ResearchRabbit</a> / <a href="https://www.connectedpapers.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Connected Papers</a> / <a href="https://www.litmaps.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Litmaps</a></strong> Mapas visuales de redes académicas.</li>
+<li><strong><a href="https://scite.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Scite.ai</a></strong> Clasifica el contexto de las citas.</li>
+</ul>
+</div>
+</div>
+<aside class="nivel-col-sampieri">
+<blockquote>"Plantear el problema no es sino afinar y estructurar más formalmente la idea de investigación."</blockquote>
+<p style="font-size:0.85rem; color:#555;"><em>— Sampieri, Cap. 3: Planteamiento cuantitativo del problema</em></p>
+<div class="correspondencia">
+<strong>Correspondencia sampieriana</strong>
+                            Pasos 1 y 2: Pregunta de Investigación + Objetivos y Justificación.
+                        </div>
+</aside>
+</div>
+</div>
+<!-- NIVEL 0 -->
+<button class="toggle-btn nivel0">🔵 Nivel 0: Explorar / Situar</button>
+<div class="toggle-content" style="border-left-color:var(--nivel0-osc);">
+<div class="nivel-grid">
+<div class="nivel-col-principal">
+<span class="verbo-nivel nivel0">EXPLORAR / SITUAR</span>
+<div class="pregunta-investigador">¿Qué realidad quiero transformar?</div>
+<h4>🎯 Objetivo del nivel</h4>
+<p>Detectar una situación problémica real en la práctica pedagógica y situarla en un contexto institucional, productivo y social concreto.</p>
+<h4>📋 Actividades clave</h4>
+<ul>
+<li>🌍 <strong>Análisis del contexto:</strong> FPI, entorno productivo y social, políticas del SNCTI y del Sistema de Investigación del SENA.</li>
+<li>🎯 <strong>Revisión de líneas:</strong> Alinear la idea con las líneas avaladas institucionalmente.</li>
+<li>👥 <strong>Constitución del equipo:</strong> Definir roles (instructor-investigador, coinvestigadores, aprendices).</li>
+<li>🔍 <strong>Identificación de necesidades formativas:</strong> Detectar brechas, dificultades o áreas de mejora.</li>
+<li>📚 <strong>Exploración preliminar del estado del arte:</strong> Primer acercamiento a la literatura académica.</li>
+</ul>
+<div class="no-delega">
+<p>La elección del problema, su relevancia social y su pertinencia institucional. La IA puede sugerir temas, pero <strong>tú decides qué realidad quieres transformar</strong>.</p>
+</div>
+<div class="ia-sugeridas">
+<ul>
+<li><strong><a href="https://chatgpt.com/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">ChatGPT</a></strong> Generar ideas, explorar subtemas, formular preguntas iniciales.</li>
+<li><strong><a href="https://gemini.google.com" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Gemini</a></strong> Lluvia de ideas, exploración de hipótesis, integración con Google Scholar.</li>
+<li><strong><a href="https://www.perplexity.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">Perplexity AI</a></strong> Búsqueda inicial con respuestas y citas en tiempo real.</li>
+<li><strong><a href="https://iask.ai/" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;text-underline-offset:3px" target="_blank">iAsk AI</a></strong> Asistente de investigación multidisciplinar.</li>
+</ul>
+</div>
+</div>
+<aside class="nivel-col-sampieri">
+<blockquote>"La investigación comienza con ideas; el primer paso es conocer el tema, depurarlo y situarlo en un contexto real."</blockquote>
+<p style="font-size:0.85rem; color:#555;"><em>— Sampieri, Cap. 2: Planteamiento del problema</em></p>
+<div class="correspondencia">
+<strong>Correspondencia sampieriana</strong>
+                            Momento previo al Paso 1: generación y depuración de la idea inicial.
+                        </div>
+</aside>
+</div>
+</div>
+</div>
+<!-- ============================================
+             SECCIÓN 3: ¿QUÉ RUTA ME CORRESPONDE?
+             ============================================ -->
+<div class="card-seccion" id="seccionRutas" style="display: none;">
+<h2 class="panel-titulo">🧭 ¿Qué ruta me corresponde?</h2>
+<p class="panel-subtitulo">Flujograma de decisión + cruce paso/nivel de la Taxonomía Emergente</p>
+<div class="flujograma-wrap">
+<div class="flujograma-titulo">🧭 Asistente de decisión metodológica</div>
+<p class="flujograma-sub">Responde 3 preguntas encadenadas y descubre qué ruta es más coherente con tu pregunta de investigación. <strong>Esta ruta se guardará y será usada por el asistente de construcción del anteproyecto.</strong></p>
+<div class="flujo-progreso" id="flujoProgreso">
+<div class="flujo-paso activo" data-paso="1"><span class="num">1</span> Pregunta raíz</div>
+<span class="flujo-flecha">→</span>
+<div class="flujo-paso" data-paso="2"><span class="num">2</span> Confirmación</div>
+<span class="flujo-flecha">→</span>
+<div class="flujo-paso" data-paso="3"><span class="num">3</span> Resultado</div>
+</div>
+<div class="flujo-pantalla activa" id="pantalla1">
+<div class="flujo-pregunta">
+<span class="etiqueta-pregunta">🔹 Pregunta 1 · La más importante</span>
+<h3>¿Tu pregunta busca <strong>medir</strong> magnitudes, frecuencias o relaciones entre variables, o busca <strong>comprender</strong> significados, experiencias o procesos?</h3>
+<div class="flujo-opciones">
+<button class="flujo-opcion medir" onclick="flujoResponder('medir')">
+<span class="op-icono">🔵</span>
+<span class="op-texto">
+<strong>Medir</strong>
+<span>Magnitudes, frecuencias o relaciones entre variables</span>
+</span>
+</button>
+<button class="flujo-opcion comprender" onclick="flujoResponder('comprender')">
+<span class="op-icono">🟢</span>
+<span class="op-texto">
+<strong>Comprender</strong>
+<span>Significados, experiencias o procesos</span>
+</span>
+</button>
+<button class="flujo-opcion ambas" onclick="flujoResponder('ambas')">
+<span class="op-icono">🟣</span>
+<span class="op-texto">
+<strong>Ambas cosas</strong>
+<span>Necesito medir y comprender a la vez</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flujo-pantalla" id="pantalla2a">
+<div class="flujo-pregunta">
+<span class="etiqueta-pregunta">🔹 Pregunta 2 · Lado cuantitativo</span>
+<h3>¿Puedes formular <strong>hipótesis previas</strong> y aplicar <strong>instrumentos estandarizados</strong> a una muestra representativa?</h3>
+<div class="flujo-opciones">
+<button class="flujo-opcion si" onclick="flujoResponder('si_cuanti')">
+<span class="op-icono">✅</span>
+<span class="op-texto">
+<strong>Sí</strong>
+<span>Puedo probar hipótesis y aplicar instrumentos estandarizados</span>
+</span>
+</button>
+<button class="flujo-opcion no" onclick="flujoResponder('no_cuanti')">
+<span class="op-icono">❌</span>
+<span class="op-texto">
+<strong>No</strong>
+<span>El contexto es único, no generalizable, o las variables no son operacionalizables</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flujo-pantalla" id="pantalla2b">
+<div class="flujo-pregunta">
+<span class="etiqueta-pregunta">🔹 Pregunta 3 · Lado cualitativo</span>
+<h3>¿Tu interés es <strong>explorar un fenómeno en profundidad</strong>, sin pretender generalizar, y estás dispuesto a que el <strong>diseño emerja</strong> durante el proceso?</h3>
+<div class="flujo-opciones">
+<button class="flujo-opcion si" onclick="flujoResponder('si_cuali')">
+<span class="op-icono">✅</span>
+<span class="op-texto">
+<strong>Sí</strong>
+<span>Exploro en profundidad y acepto que el diseño emerja</span>
+</span>
+</button>
+<button class="flujo-opcion no" onclick="flujoResponder('no_cuali')">
+<span class="op-icono">❌</span>
+<span class="op-texto">
+<strong>No</strong>
+<span>También necesito datos medibles o comparables</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flujo-pantalla" id="pantalla3b">
+<div class="flujo-pregunta">
+<span class="etiqueta-pregunta">🔹 Reconsideración</span>
+<h3>Como no puedes probar hipótesis ni aplicar instrumentos estandarizados a una muestra representativa, tu estudio podría ser <strong>cualitativo</strong> o <strong>mixto</strong>. ¿Qué buscas?</h3>
+<div class="flujo-opciones">
+<button class="flujo-opcion comprender" onclick="flujoResponder('reconsiderar_cuali')">
+<span class="op-icono">🟢</span>
+<span class="op-texto">
+<strong>Comprender en profundidad</strong>
+<span>Explorar significados, experiencias o procesos</span>
+</span>
+</button>
+<button class="flujo-opcion ambas" onclick="flujoResponder('reconsiderar_mixta')">
+<span class="op-icono">🟣</span>
+<span class="op-texto">
+<strong>Ambos tipos de datos</strong>
+<span>Necesito datos medibles y comprensivos</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flujo-pantalla" id="pantallaResultado">
+<div class="flujo-resultado" id="resultadoBox">
+<span class="resultado-badge" id="resultadoBadge">RUTA SUGERIDA</span>
+<h3>🎯 Tu ruta es:</h3>
+<div class="resultado-ruta" id="resultadoRuta">—</div>
+<p class="resultado-justificacion" id="resultadoJustificacion">—</p>
+<div class="resultado-resumen" id="resultadoResumen">
+<h4>📋 Resumen de tu ruta</h4>
+<ul id="resultadoLista"></ul>
+</div>
+<div class="resultado-pasos-tax" id="resultadoPasosTax">
+<h4 id="resultadoPasosTaxTitulo">📋 Pasos de tu ruta + Nivel de la Taxonomía</h4>
+<table class="tabla-pasos-niveles">
+<thead>
+<tr>
+<th>#</th>
+<th>Paso de la ruta</th>
+<th>Nivel de la Taxonomía</th>
+</tr>
+</thead>
+<tbody id="tablaPasosNivelesBody"></tbody>
+</table>
+<div class="nota-al-pie">
+<strong>ℹ️ Nota:</strong> Los niveles <strong>N5 (Evaluar)</strong> y <strong>N6 (Transferir / Divulgar)</strong> no aparecen en esta tabla porque son <em>extensiones posteriores</em> al ciclo operativo de la ruta. Los encontrarás en la Taxonomía Emergente completa.
+                            </div>
+<button class="btn-puente-tax" onclick="irATaxonomia()">📖 Ver la Taxonomía Emergente completa</button>
+</div>
+<div class="resultado-puente">✅ Ruta guardada. Puedes consultar la Taxonomía Emergente y las herramientas metodológicas.</div>
+<div class="resultado-acciones">
+<button class="btn-reiniciar" onclick="flujoReiniciar()">🔄 Volver a empezar</button>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ============================================
+             SECCIÓN 4: CONSTRUIR ANTEPROYECTO
+             ============================================ -->
+<div class="card-seccion" id="seccionConstruir" style="display: none;"></div>
+<!-- ============================================
+             SECCIÓN 5: HERRAMIENTAS IA + MARCO LÓGICO
+             ============================================ -->
+<div class="card-seccion" id="seccion3" style="display: none;">
+<h2 class="panel-titulo">🤖 Herramientas IA + Marco Lógico</h2>
+<p class="panel-subtitulo">Apoyo por nivel de pensamiento + enfoque metodológico de Marco Lógico</p>
+<div class="highlight">
+<strong>💡 Regla de oro:</strong> La IA es <strong>asistente, no autora</strong>. Úsala para potenciar tu pensamiento en cada nivel, no para reemplazarlo. Verifica siempre las fuentes y declara su uso.
+            </div>
+<!-- Toggle: ¿Qué es el Marco Lógico? -->
+<button class="toggle-btn ml-tab">🔍 ¿Qué es el Marco Lógico?</button>
+<div class="toggle-content">
+<h3>El Marco Lógico como metodología de formulación</h3>
+<p>El <strong>Marco Lógico (ML)</strong> es una metodología de planificación y gestión de proyectos que organiza las intervenciones en 4 niveles jerárquicos conectados lógicamente. Se usa ampliamente en proyectos de cooperación internacional, políticas públicas y proyectos institucionales.</p>
+<p>En el SENA, el Marco Lógico se aplica a <strong>proyectos de investigación aplicada</strong>, <strong>proyectos formativos</strong> y <strong>proyectos de innovación pedagógica</strong>. Su uso garantiza que cada acción tenga un propósito claro y verificable.</p>
+<div class="highlight">
+<strong>Idea fuerza:</strong> el Marco Lógico no es solo una plantilla: es una <strong>disciplina de pensamiento</strong> que obliga a conectar actividades con propósitos y propósitos con impactos.
+                </div>
+<div class="source">
+<strong>Fuentes:</strong> Metodología del Marco Lógico (CEPAL, 2004), Guías de formulación de proyectos del DNP, lineamientos SENNOVA.
+                </div>
+</div>
+<!-- Toggle: Los 4 niveles del ML -->
+<button class="toggle-btn ml-tab">🧭 Los 4 niveles del Marco Lógico</button>
+<div class="toggle-content">
+<h3>FIN → PROPÓSITO → COMPONENTES → ACTIVIDADES</h3>
+<h4>🔵 FIN (Impacto a largo plazo)</h4>
+<p>Es el impacto amplio, más allá del proyecto. Suele ser una contribución, no un logro directo. Ejemplo: <em>"Contribuir al arraigo territorial de jóvenes rurales."</em></p>
+<h4>🟢 PROPÓSITO (Efecto directo)</h4>
+<p>Es el efecto directo del proyecto al finalizar. Debe responder al problema identificado. Ejemplo: <em>"Comprender las dimensiones subjetivas del emprendimiento."</em></p>
+<h4>🟡 COMPONENTES (Productos)</h4>
+<p>Son los entregables concretos del proyecto. Cada componente debe producirse por un conjunto de actividades. Ejemplo: <em>"Guía metodológica para instructores."</em></p>
+<h4>🟠 ACTIVIDADES (Acciones)</h4>
+<p>Son las acciones concretas que producen los componentes. Ejemplo: <em>"Entrevistas semiestructuradas a 12 aprendices."</em></p>
+<div class="highlight">
+<strong>Regla de oro:</strong> las actividades producen componentes; los componentes producen el propósito; el propósito contribuye al fin. Si la cadena se rompe, la lógica se rompe.
+                </div>
+</div>
+<!-- Toggle: Indicadores SMART -->
+<button class="toggle-btn ml-tab">📏 Indicadores SMART</button>
+<div class="toggle-content">
+<h3>Los indicadores deben ser verificables</h3>
+<p>Un indicador es la forma de medir el logro de un objetivo. Para ser útil, debe ser <strong>SMART</strong>:</p>
+<ul>
+<li><strong>S</strong> — Específico: ¿qué mide exactamente?</li>
+<li><strong>M</strong> — Medible: ¿cómo se mide cuantitativa o cualitativamente?</li>
+<li><strong>A</strong> — Alcanzable: ¿es viable con los recursos disponibles?</li>
+<li><strong>R</strong> — Relevante: ¿está conectado con el objetivo?</li>
+<li><strong>T</strong> — Temporal: ¿en qué plazo se logra?</li>
+</ul>
+<div class="highlight">
+<strong>Ejemplo BUENO:</strong> "Aumentar la retención estudiantil del programa de X al 80% al finalizar el primer trimestre de 2026."
+                </div>
+<div class="no-delega">
+<p><strong>Ejemplo MALO:</strong> "Mejorar el programa." — No es específico, medible ni temporal.</p>
+</div>
+</div>
+<!-- Toggle: Medios de verificación -->
+<button class="toggle-btn ml-tab">🎯 Medios de verificación</button>
+<div class="toggle-content">
+<h3>¿Dónde se verifica el indicador?</h3>
+<p>Los medios de verificación son las <strong>fuentes donde se puede comprobar</strong> el cumplimiento de cada indicador.</p>
+<p>Ejemplos típicos:</p>
+<ul>
+<li>📄 Informe final de investigación.</li>
+<li>💾 Base de datos del proyecto.</li>
+<li>📊 Registros institucionales del SENA.</li>
+<li>📚 Publicaciones y productos de transferencia.</li>
+<li>📋 Actas de reunión y listas de asistencia.</li>
+<li>🎥 Evidencias audiovisuales de talleres o socializaciones.</li>
+</ul>
+<div class="highlight">
+<strong>Regla:</strong> cada indicador debe tener al menos un medio de verificación concreto. Si no se puede verificar, el indicador no sirve.
+                </div>
+</div>
+<!-- Toggle: Supuestos -->
+<button class="toggle-btn ml-tab">⚠️ Supuestos</button>
+<div class="toggle-content">
+<h3>Las condiciones externas del proyecto</h3>
+<p>Los supuestos son <strong>condiciones externas necesarias para que el proyecto funcione</strong>. No son resultados del proyecto; son cosas que deben ocurrir en el entorno.</p>
+<h4>Ejemplos válidos</h4>
+<ul>
+<li>"Acceso continuo al territorio y colaboración de las empresas participantes."</li>
+<li>"Estabilidad institucional y continuidad del programa."</li>
+<li>"Disponibilidad de los aprendices para las entrevistas."</li>
+</ul>
+<div class="no-delega">
+<p><strong>Supuestos inválidos:</strong> "El proyecto logrará los resultados esperados." — Es una tautología, no un supuesto.</p>
+</div>
+</div>
+<!-- Toggle: Anti-casos del ML -->
+<button class="toggle-btn ml-tab">🚫 Anti-casos del Marco Lógico</button>
+<div class="toggle-content">
+<h3>Los errores más comunes</h3>
+<h4>1. FIN y PROPÓSITO confundidos</h4>
+<p>El FIN es impacto a largo plazo; el PROPÓSITO es efecto directo. Si son iguales, la matriz está mal.</p>
+<h4>2. Indicadores no verificables</h4>
+<p>"Mejorar el programa" no es medible. Se necesita cifra + plazo.</p>
+<h4>3. Supuestos que dependen del proyecto</h4>
+<p>Los supuestos son condiciones externas, no resultados.</p>
+<h4>4. Actividades vagas</h4>
+<p>"Trabajo de campo" no dice qué se hace. Se necesita especificar técnica y muestra.</p>
+<h4>5. Componentes no verificables</h4>
+<p>"Estrategia" no es un entregable. "Guía metodológica validada" sí lo es.</p>
+</div>
+<!-- Toggle: Tabla Integradora -->
+<button class="toggle-btn">📊 Tabla Integradora: Nivel ↔ Verbo ↔ Sampieri ↔ Rol</button>
+<div class="toggle-content">
+<h3>📊 Tabla Integradora</h3>
+<p style="margin-bottom:15px;">Nivel ↔ Verbo ↔ Sustento Sampieri ↔ Rol del investigador vs. Rol de la IA</p>
+<div class="highlight">
+<strong>💡 Cómo leer esta tabla:</strong> La primera columna muestra el nivel y su verbo. La segunda, el sustento en el marco de Sampieri. La tercera, lo que el investigador no delega. La cuarta, lo que la IA puede asumir.
+                </div>
+<table class="tabla-integradora">
+<thead>
+<tr>
+<th>Nivel / Verbo</th>
+<th>Sustento Sampieri</th>
+<th>🚫 NO se delega a la IA</th>
+<th>🤖 La IA puede asistir en...</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nivel 6<br/><span class="col-verbo">Transferir / Divulgar</span></td>
+<td>Extensión ética del marco sampieriano</td>
+<td>La autoría, la ética y la transferencia real</td>
+<td>Traducción, visualizaciones, plataformas de divulgación</td>
+</tr>
+<tr>
+<td>Nivel 5<br/><span class="col-verbo">Evaluar</span></td>
+<td>Cierre iterativo (nota clave del autor)</td>
+<td>El juicio sobre el impacto y la proyección</td>
+<td>Métricas, documentación de lecciones, tableros</td>
+</tr>
+<tr>
+<td>Nivel 4<br/><span class="col-verbo">Interpretar / Comunicar</span></td>
+<td>Análisis y reporte (Cap. 11 y 13)</td>
+<td>El sentido, la argumentación y la voz propia</td>
+<td>Corrección de estilo, referencias, presentaciones</td>
+</tr>
+<tr>
+<td>Nivel 3<br/><span class="col-verbo">Aplicar / Verificar</span></td>
+<td>Recolección de datos (Cap. 9)</td>
+<td>La interpretación contextual y la validez</td>
+<td>Transcripción, codificación, procesamiento estadístico</td>
+</tr>
+<tr>
+<td>Nivel 2<br/><span class="col-verbo">Diseñar / Fundamentar</span></td>
+<td>Marco teórico y diseño (Cap. 4 y 6)</td>
+<td>El diseño metodológico y la coherencia interna</td>
+<td>Revisión de literatura, ítems de encuestas, cronogramas</td>
+</tr>
+<tr>
+<td>Nivel 1<br/><span class="col-verbo">Formular / Delimitar</span></td>
+<td>Planteamiento del problema (Cap. 3)</td>
+<td>La pregunta, la justificación y los objetivos</td>
+<td>Búsqueda académica, mapas de citas, evidencia científica</td>
+</tr>
+<tr>
+<td>Nivel 0<br/><span class="col-verbo">Explorar / Situar</span></td>
+<td>Generación y depuración de la idea (Cap. 2)</td>
+<td>La elección del problema y su relevancia</td>
+<td>Generar ideas, explorar subtemas, búsquedas iniciales</td>
+</tr>
+</tbody>
+</table>
+</div>
+<button class="toggle-btn nivel6">🟡 Nivel 6: Transferir / Divulgar + IA</button>
+<div class="toggle-content" style="border-left-color:var(--nivel6-osc);">
+<h3>Productos académicos y visualización</h3>
+<div class="tools-grid">
+<div class="tool-item"><strong>Paperpal / Trinka</strong>Corrección de estilo académico.</div>
+<div class="tool-item"><strong>Midjourney / DALL-E / Canva IA</strong>Visualizaciones e infografías.</div>
+<div class="tool-item"><strong>Tome AI / Gamma</strong>Presentaciones visuales.</div>
+<div class="tool-item"><strong>DeepL / Google Translate</strong>Traducción asistida.</div>
+<div class="tool-item"><strong>ResearchGate / Google Scholar</strong>Plataformas de divulgación.</div>
+</div>
+<div class="no-delega">
+<p>La autoría, la ética y la transferencia real a la comunidad.</p>
+</div>
+</div>
+<button class="toggle-btn nivel5">🟣 Nivel 5: Evaluar + IA</button>
+<div class="toggle-content" style="border-left-color:var(--nivel5-osc);">
+<h3>Impacto, lecciones y escalamiento</h3>
+<div class="tools-grid">
+<div class="tool-item"><strong>Julius AI</strong>Análisis de impacto y métricas.</div>
+<div class="tool-item"><strong>Notion AI</strong>Documentación de lecciones aprendidas.</div>
+<div class="tool-item"><strong>MS Copilot (Excel)</strong>Tableros de evaluación.</div>
+<div class="tool-item"><strong>ChatGPT / Claude</strong>Reflexión guiada sobre el proceso metodológico.</div>
+</div>
+<div class="no-delega">
+<p>El juicio sobre el impacto y la proyección del proyecto.</p>
+</div>
+</div>
+<button class="toggle-btn nivel4">🟠 Nivel 4: Interpretar / Comunicar + IA</button>
+<div class="toggle-content" style="border-left-color:var(--nivel4-osc);">
+<h3>Análisis, redacción y socialización</h3>
+<div class="tools-grid">
+<div class="tool-item"><strong>Julius AI</strong>Análisis estadístico y visualización.</div>
+<div class="tool-item"><strong>Paperpal / Trinka</strong>Correctores de estilo académico.</div>
+<div class="tool-item"><strong>Zotero</strong>Gestión de referencias bibliográficas.</div>
+<div class="tool-item"><strong>Quillbot</strong>Parafraseo ético (con revisión manual).</div>
+<div class="tool-item"><strong>Gamma / Tome</strong>Presentaciones con IA para socialización.</div>
+</div>
+<div class="no-delega">
+<p>El sentido, la argumentación y la voz propia del investigador.</p>
+</div>
+</div>
+<button class="toggle-btn nivel3">🟩 Nivel 3: Aplicar / Verificar + IA</button>
+<div class="toggle-content" style="border-left-color:var(--nivel3-osc);">
+<h3>Recolección, gestión y validación</h3>
+<div class="tools-grid">
+<div class="tool-item"><strong>Otter.ai / Fireflies.ai</strong>Transcripción de entrevistas y reuniones.</div>
+<div class="tool-item"><strong>Dovetail / NVivo (IA)</strong>Análisis cualitativo y codificación.</div>
+<div class="tool-item"><strong>Julius AI</strong>Análisis estadístico de datos.</div>
+<div class="tool-item"><strong>MS Copilot (Excel)</strong>Procesamiento de datos y tablas dinámicas.</div>
+</div>
+<div class="no-delega">
+<p>La interpretación contextual y la validez de los datos.</p>
+</div>
+</div>
+<button class="toggle-btn nivel2">🟢 Nivel 2: Diseñar / Fundamentar + IA</button>
+<div class="toggle-content" style="border-left-color:var(--nivel2-osc);">
+<h3>Marco referencial, diseño e instrumentos</h3>
+<div class="tools-grid">
+<div class="tool-item"><strong>Elicit / Consensus</strong>Revisión sistemática de literatura.</div>
+<div class="tool-item"><strong>ChatPDF / Humata</strong>Preguntas específicas sobre PDFs.</div>
+<div class="tool-item"><strong>Julius AI</strong>Análisis de datos y planificación estadística.</div>
+<div class="tool-item"><strong>Qualtrics / Typeform (IA)</strong>Redacción de ítems de encuestas.</div>
+<div class="tool-item"><strong>Notion AI</strong>Cronogramas, presupuestos y checklists.</div>
+</div>
+<div class="no-delega">
+<p>El diseño metodológico y la coherencia interna del estudio.</p>
+</div>
+</div>
+<button class="toggle-btn nivel1">🟦 Nivel 1: Formular / Delimitar + IA</button>
+<div class="toggle-content" style="border-left-color:var(--nivel1-osc);">
+<h3>Búsqueda académica y formulación</h3>
+<div class="tools-grid">
+<div class="tool-item"><strong>Semantic Scholar</strong>Buscador académico con IA y filtrado semántico.</div>
+<div class="tool-item"><strong>Consensus</strong>Respuestas basadas en evidencia científica verificada.</div>
+<div class="tool-item"><strong>Elicit</strong>Extrae métodos y resultados de millones de artículos.</div>
+<div class="tool-item"><strong>ResearchRabbit</strong>Explora y visualiza redes académicas.</div>
+<div class="tool-item"><strong>Connected Papers</strong>Exploración visual de relaciones entre papers.</div>
+<div class="tool-item"><strong>Litmaps</strong>Visualiza conexiones y encuentra nuevas rutas.</div>
+<div class="tool-item"><strong>Scite.ai</strong>Clasifica el contexto de las citas.</div>
+</div>
+<div class="no-delega">
+<p>La pregunta de investigación, la justificación y los objetivos.</p>
+</div>
+</div>
+<button class="toggle-btn nivel0">🔵 Nivel 0: Explorar / Situar + IA</button>
+<div class="toggle-content" style="border-left-color:var(--nivel0-osc);">
+<h3>Exploración inicial y generación de ideas</h3>
+<div class="tools-grid">
+<div class="tool-item"><strong>ChatGPT</strong>Generar ideas, explorar subtemas, formular preguntas iniciales.</div>
+<div class="tool-item"><strong>Gemini</strong>Lluvia de ideas, exploración de hipótesis, integración con Google Scholar.</div>
+<div class="tool-item"><strong>Perplexity AI</strong>Búsqueda inicial con respuestas y citas en tiempo real.</div>
+<div class="tool-item"><strong>iAsk AI</strong>Asistente de investigación multidisciplinar.</div>
+</div>
+<div class="no-delega">
+<p>La elección del problema y su relevancia social.</p>
+</div>
+</div>
+<button class="toggle-btn">⚠️ Reglas de Oro para IA en Investigación</button>
+<div class="toggle-content">
+<h3>Ética y Rigor</h3>
+<ul>
+<li>🚫 <strong>La IA es asistente, no autor:</strong> No la pongas como coautora. Declara su uso en Metodología o Agradecimientos.</li>
+<li>🔍 <strong>Verificación de fuentes:</strong> Si la IA cita un artículo, busca el DOI y verifica que exista.</li>
+<li>🔒 <strong>Privacidad de datos:</strong> Nunca subas datos sensibles o confidenciales a herramientas de IA públicas.</li>
+<li>📢 <strong>Declaración de uso:</strong> Menciona explícitamente qué herramientas usaste y para qué.</li>
+</ul>
+<div class="source">
+<strong>Fuentes:</strong> Documentación oficial de herramientas IA, guías de ética en investigación académica
+                </div>
+</div>
+</div>
+</div>
+<!-- FOOTER -->
+<div class="footer">
+<p><strong>Taxonomía Emergente + Construir Anteproyecto con IA + Enfoque de Marco Lógico</strong></p>
+<p>Marco referencial: Hernández Sampieri · Programas SENA 12210005 · 12210006 · 41311626</p>
+<p>7 niveles + 3 rutas + 9 pasos + 4 niveles de ML · 2026</p>
+</div>
+</div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+<div class="loading-spinner">
+<div class="spinner"></div>
+<p id="loadingTexto">Analizando con IA...</p>
+</div>
+</div>
+<script>
+// ============================================================
+// CONFIGURACIÓN DEL WORKER
+// ============================================================
+const WORKER_URL = "https://delicate-credit-ecce.hfhoyos.workers.dev";
+
+// ============================================================
+// NAVEGACIÓN PRINCIPAL (5 cards)
+// ============================================================
+document.querySelectorAll('.menu-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const targetId = this.dataset.target;
+
+        document.querySelectorAll('.menu-card').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+
+        document.querySelectorAll('.card-seccion').forEach(s => {
+            s.style.display = 'none';
+        });
+
+        const target = document.getElementById(targetId);
+        if (target) {
+            target.style.display = 'block';
+            target.querySelectorAll('.toggle-content').forEach(c => c.classList.remove('active'));
+            target.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+
+            if (targetId === 'seccionConstruir') {
+                renderizarSidebar();
+            }
+        }
+
+        document.querySelector('.contenido-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+});
+
+// ============================================================
+// TOGGLES
+// ============================================================
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const content = this.nextElementSibling;
+        const isActive = content.classList.contains('active');
+        const parentSection = this.closest('.card-seccion');
+        parentSection.querySelectorAll('.toggle-content').forEach(c => c.classList.remove('active'));
+        parentSection.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        if (!isActive) {
+            content.classList.add('active');
+            this.classList.add('active');
+        }
+    });
+});
+
+// ============================================================
+// SUB-PESTAÑAS DEL ASISTENTE
+// ============================================================
+document.querySelectorAll('.subtab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const subtabId = this.dataset.subtab;
+        document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        document.querySelectorAll('.subtab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(subtabId).classList.add('active');
+
+        if (subtabId === 'sub-exportar') {
+            actualizarPreview();
+        }
+    });
+});
+
+// ============================================================
+// RUTAS PREDETERMINADAS CON EMOJIS
+// ============================================================
+const RUTAS_INFO = {
+    cuanti: { nombre: 'CUANTITATIVA', clase: 'ruta-cuanti' },
+    cuali: { nombre: 'CUALITATIVA', clase: 'ruta-cuali' },
+    mixta: { nombre: 'MIXTA', clase: 'ruta-mixta' }
+};
+
+const RUTAS_CONTENIDO = {
+    cuanti: {
+        justificacion: 'Tu pregunta busca medir y puedes formular hipótesis previas con instrumentos estandarizados a una muestra representativa. La ruta cuantitativa es la más coherente con tu diseño.',
+        resumen: [
+            '🔷 Enfoque deductivo y lineal.',
+            '🔢 Datos numéricos y análisis estadístico.',
+            '🎯 Busca medir, probar hipótesis y generalizar.'
+        ],
+        pasos: [
+            { num: 1, paso: '💡 Idea', detalle: 'Surge una idea acotada que se va delimitando.', nivel: 0 },
+            { num: 2, paso: '📝 Planteamiento del problema', detalle: 'Se definen objetivos, preguntas, justificación y viabilidad.', nivel: 1 },
+            { num: 3, paso: '📚 Revisión de la literatura y marco teórico', detalle: 'Se construye el marco de referencia que sustenta el estudio.', nivel: 2 },
+            { num: 4, paso: '🎯 Definición del alcance', detalle: 'Exploratorio, descriptivo, correlacional o explicativo.', nivel: 1 },
+            { num: 5, paso: '❓ Formulación de hipótesis', detalle: 'Se establecen las hipótesis que serán probadas estadísticamente.', nivel: 1 },
+            { num: 6, paso: '🧪 Diseño de la investigación', detalle: 'Se selecciona un diseño experimental o no experimental.', nivel: 2 },
+            { num: 7, paso: '👥 Selección de la muestra', detalle: 'Se define la población, el muestreo y el tamaño de la muestra.', nivel: 2 },
+            { num: 8, paso: '📋 Recolección de datos', detalle: 'Se aplican instrumentos estandarizados para obtener datos numéricos.', nivel: 3 },
+            { num: 9, paso: '📊 Análisis de datos', detalle: 'Se procesan los datos con técnicas estadísticas para probar las hipótesis.', nivel: 4 },
+            { num: 10, paso: '📄 Elaboración del reporte', detalle: 'Se presenta el informe final con resultados y conclusiones.', nivel: 4 }
+        ]
+    },
+    cuali: {
+        justificacion: 'Tu pregunta busca comprender significados, experiencias o procesos en profundidad, sin pretender generalizar. La ruta cualitativa te permite que el diseño emerja durante el proceso.',
+        resumen: [
+            '🔄 Enfoque inductivo, iterativo y flexible.',
+            '💬 Datos textuales, imágenes y significados.',
+            '🧠 Busca comprender, interpretar y dar sentido.'
+        ],
+        pasos: [
+            { num: 1, paso: '💡 Idea', detalle: 'Se parte de una idea de investigación.', nivel: 0 },
+            { num: 2, paso: '📝 Planteamiento del problema', detalle: 'Se define el problema, pero puede irse ajustando conforme avanza la inmersión.', nivel: 1 },
+            { num: 3, paso: '🌍 Inmersión en el campo', detalle: 'El investigador se introduce en el ambiente o contexto.', nivel: 0 },
+            { num: 4, paso: '📚 Revisión de la literatura', detalle: 'Puede hacerse en cualquier momento y sirve para afinar el planteamiento.', nivel: 2 },
+            { num: 5, paso: '🎨 Concepción del diseño', detalle: 'Se define el abordaje general (teoría fundamentada, etnografía, etc.).', nivel: 2 },
+            { num: 6, paso: '👥 Definición de la muestra', detalle: 'La muestra es inicial y puede ajustarse durante el estudio.', nivel: 2 },
+            { num: 7, paso: '🎙️ Recolección de datos', detalle: 'Entrevistas, observaciones, documentos; datos de personas y comunidades.', nivel: 3 },
+            { num: 8, paso: '🔍 Análisis de datos', detalle: 'Se codifican y categorizan los datos para descubrir temas y patrones.', nivel: 4 },
+            { num: 9, paso: '💭 Interpretación de resultados', detalle: 'Se da sentido a los hallazgos en relación con el contexto.', nivel: 4 },
+            { num: 10, paso: '📖 Elaboración del reporte', detalle: 'Se genera un informe que describe, interpreta y comprende el fenómeno.', nivel: 4 }
+        ]
+    },
+    mixta: {
+        justificacion: 'Necesitas tanto datos medibles como comprensivos. La ruta mixta te permite integrar ambos enfoques, triangular resultados y generar metainferencias más ricas.',
+        resumen: [
+            '🔀 Enfoque integrador y complementario.',
+            '🔢💬 Datos numéricos y textuales combinados.',
+            '🎯 Busca medir y comprender en un solo estudio.'
+        ],
+        pasos: [
+            { num: 1, paso: '📝 Planteamiento del problema', detalle: 'Se integran preguntas cuantitativas y cualitativas; se define la prioridad.', nivel: 0 },
+            { num: 2, paso: '📚 Revisión de la literatura', detalle: 'Se revisan fuentes de ambos tipos (cuantitativas y cualitativas).', nivel: 1 },
+            { num: 3, paso: '❓ Formulación de hipótesis (si aplica)', detalle: 'Hipótesis para la parte cuantitativa y supuestos para la cualitativa.', nivel: 1 },
+            { num: 4, paso: '🧪 Diseño de la investigación', detalle: 'Se elige un diseño mixto (secuencial, concurrente, conversión) que integra los datos.', nivel: 2 },
+            { num: 5, paso: '👥 Definición de la muestra', detalle: 'Se definen las muestras para cada componente (cuantitativo y cualitativo).', nivel: 2 },
+            { num: 6, paso: '📋 Recolección de datos', detalle: 'Se recolectan datos numéricos y textuales, simultánea o secuencialmente.', nivel: 3 },
+            { num: 7, paso: '📊 Análisis de datos', detalle: 'Se analizan por separado y luego se integran mediante triangulación.', nivel: 4 },
+            { num: 8, paso: '🎓 Interpretación y reporte', detalle: 'Se elaboran metainferencias a partir de la integración de ambos resultados.', nivel: 4 }
+        ]
+    }
+};
+
+const nombresNiveles = {
+    0: 'Explorar / Situar',
+    1: 'Formular / Delimitar',
+    2: 'Diseñar / Fundamentar',
+    3: 'Aplicar / Verificar',
+    4: 'Interpretar / Comunicar',
+    5: 'Evaluar',
+    6: 'Transferir / Divulgar'
+};
+
+function mostrarPantallaFlujo(idPantalla, paso) {
+    document.querySelectorAll('.flujo-pantalla').forEach(p => p.classList.remove('activa'));
+    document.getElementById(idPantalla).classList.add('activa');
+    document.querySelectorAll('.flujo-paso').forEach(p => {
+        const numPaso = parseInt(p.dataset.paso);
+        p.classList.remove('activo', 'completado');
+        if (numPaso < paso) p.classList.add('completado');
+        else if (numPaso === paso) p.classList.add('activo');
+    });
+}
+
+function flujoResponder(opcion) {
+    if (opcion === 'medir') mostrarPantallaFlujo('pantalla2a', 2);
+    else if (opcion === 'comprender') mostrarPantallaFlujo('pantalla2b', 2);
+    else if (opcion === 'ambas') mostrarResultado('mixta');
+    else if (opcion === 'si_cuanti') mostrarResultado('cuanti');
+    else if (opcion === 'no_cuanti') mostrarPantallaFlujo('pantalla3b', 3);
+    else if (opcion === 'si_cuali') mostrarResultado('cuali');
+    else if (opcion === 'no_cuali') mostrarResultado('mixta');
+    else if (opcion === 'reconsiderar_cuali') mostrarResultado('cuali');
+    else if (opcion === 'reconsiderar_mixta') mostrarResultado('mixta');
+}
+
+function mostrarResultado(claveRuta) {
+    const info = RUTAS_INFO[claveRuta];
+    const contenido = RUTAS_CONTENIDO[claveRuta];
+
+    const box = document.getElementById('resultadoBox');
+    box.className = 'flujo-resultado ' + info.clase;
+
+    document.getElementById('resultadoBadge').className = 'resultado-badge ' + info.clase;
+    document.getElementById('resultadoBadge').textContent = 'RUTA SUGERIDA';
+
+    const rutaEl = document.getElementById('resultadoRuta');
+    rutaEl.className = 'resultado-ruta ' + info.clase;
+    rutaEl.textContent = info.nombre;
+
+    document.getElementById('resultadoJustificacion').textContent = contenido.justificacion;
+
+    const lista = document.getElementById('resultadoLista');
+    lista.innerHTML = '';
+    contenido.resumen.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        lista.appendChild(li);
+    });
+
+    const pasosTaxBox = document.getElementById('resultadoPasosTax');
+    pasosTaxBox.className = 'resultado-pasos-tax ' + info.clase;
+
+    document.getElementById('resultadoPasosTaxTitulo').textContent = '📋 Pasos de la ruta ' + info.nombre + ' + Nivel de la Taxonomía';
+
+    const tbody = document.getElementById('tablaPasosNivelesBody');
+    tbody.innerHTML = '';
+    contenido.pasos.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + p.num + '</td>' +
+            '<td><strong>' + p.paso + '</strong><span>' + p.detalle + '</span></td>' +
+            '<td class="nivel-celda"><span class="nivel-chip n' + p.nivel + '">N' + p.nivel + ' · ' + nombresNiveles[p.nivel] + '</span></td>';
+        tbody.appendChild(tr);
+    });
+
+    mostrarPantallaFlujo('pantallaResultado', 3);
+
+    rutaElegida = claveRuta;
+    localStorage.setItem('rutaElegida', claveRuta);
+    actualizarRutaBox();
+    mostrarToast('Ruta guardada: ' + info.nombre, 'success');
+}
+
+function flujoReiniciar() {
+    rutaElegida = null;
+    localStorage.removeItem('rutaElegida');
+    mostrarPantallaFlujo('pantalla1', 1);
+    document.querySelectorAll('.flujo-paso').forEach((p, idx) => {
+        p.classList.remove('activo', 'completado');
+        if (idx === 0) p.classList.add('activo');
+    });
+    actualizarRutaBox();
+}
+
+function irATaxonomia() {
+    document.querySelectorAll('.menu-card').forEach(c => c.classList.remove('active'));
+    document.querySelector('.menu-card[data-target="seccion2"]').classList.add('active');
+    document.querySelectorAll('.card-seccion').forEach(s => s.style.display = 'none');
+    document.getElementById('seccion2').style.display = 'block';
+    document.querySelector('.contenido-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function irAConstruir() {
+    document.querySelectorAll('.menu-card').forEach(c => c.classList.remove('active'));
+    document.querySelector('.menu-card[data-target="seccionConstruir"]').classList.add('active');
+    document.querySelectorAll('.card-seccion').forEach(s => s.style.display = 'none');
+    document.getElementById('seccionConstruir').style.display = 'block';
+    renderizarSidebar();
+    document.querySelector('.contenido-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ============================================================
+// ZOOM
+// ============================================================
+(function() {
+    const viewport = document.getElementById('zoomViewport');
+    const img = document.getElementById('zoomImg');
+    const nivelEl = document.getElementById('zoomNivel');
+    if (!viewport || !img) return;
+
+    let escala = 1, trasladoX = 0, trasladoY = 0;
+    const ESCALA_MIN = 1, ESCALA_MAX = 4, PASO = 0.25;
+    let arrastrando = false, inicioX = 0, inicioY = 0, startTrasladoX = 0, startTrasladoY = 0;
+
+    function aplicar() {
+        img.style.transform = `translate(${trasladoX}px, ${trasladoY}px) scale(${escala})`;
+        nivelEl.textContent = Math.round(escala * 100) + '%';
+        viewport.classList.toggle('zoomed', escala > 1);
+    }
+    function limitarTraslado() {
+        const rectViewport = viewport.getBoundingClientRect();
+        const anchoImg = img.offsetWidth * escala;
+        const altoImg = img.offsetHeight * escala;
+        const maxX = Math.max(0, (anchoImg - rectViewport.width) / 2);
+        const maxY = Math.max(0, (altoImg - rectViewport.height) / 2);
+        trasladoX = Math.min(maxX, Math.max(-maxX, trasladoX));
+        trasladoY = Math.min(maxY, Math.max(-maxY, trasladoY));
+    }
+    window.zoomIn = function() { if (escala < ESCALA_MAX) { escala = Math.min(ESCALA_MAX, escala + PASO); limitarTraslado(); aplicar(); } };
+    window.zoomOut = function() { if (escala > ESCALA_MIN) { escala = Math.max(ESCALA_MIN, escala - PASO); if (escala === 1) { trasladoX = 0; trasladoY = 0; } limitarTraslado(); aplicar(); } };
+    window.zoomReset = function() { escala = 1; trasladoX = 0; trasladoY = 0; aplicar(); };
+
+    viewport.addEventListener('mousedown', function(e) {
+        if (escala <= 1) return;
+        arrastrando = true; inicioX = e.clientX; inicioY = e.clientY;
+        startTrasladoX = trasladoX; startTrasladoY = trasladoY;
+        viewport.classList.add('dragging'); e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e) {
+        if (!arrastrando) return;
+        trasladoX = startTrasladoX + (e.clientX - inicioX);
+        trasladoY = startTrasladoY + (e.clientY - inicioY);
+        limitarTraslado(); aplicar();
+    });
+    document.addEventListener('mouseup', function() { if (arrastrando) { arrastrando = false; viewport.classList.remove('dragging'); } });
+    viewport.addEventListener('touchstart', function(e) {
+        if (escala <= 1 || e.touches.length !== 1) return;
+        arrastrando = true; inicioX = e.touches[0].clientX; inicioY = e.touches[0].clientY;
+        startTrasladoX = trasladoX; startTrasladoY = trasladoY;
+    }, { passive: true });
+    viewport.addEventListener('touchmove', function(e) {
+        if (!arrastrando || e.touches.length !== 1) return;
+        trasladoX = startTrasladoX + (e.touches[0].clientX - inicioX);
+        trasladoY = startTrasladoY + (e.touches[0].clientY - inicioY);
+        limitarTraslado(); aplicar(); e.preventDefault();
+    }, { passive: false });
+    viewport.addEventListener('touchend', function() { arrastrando = false; });
+    viewport.addEventListener('dblclick', function(e) {
+        if (escala === 1) escala = 2;
+        else { escala = 1; trasladoX = 0; trasladoY = 0; }
+        limitarTraslado(); aplicar(); e.preventDefault();
+    });
+    viewport.addEventListener('wheel', function(e) {
+        if (!e.ctrlKey) return;
+        e.preventDefault();
+        if (e.deltaY < 0) zoomIn();
+        else zoomOut();
+    }, { passive: false });
+    aplicar();
+})();
+
+// ============================================================
+// ASISTENTE: DEFINICIÓN DE PASOS
+// ============================================================
+const PASOS = [
+    { num: 1, id: "paso_1", titulo: "📝 Descripción del problema", nivel: "N0–N1", color: "#4FC3F7", nivelNombre: "Explorar / Formular" },
+    { num: 2, id: "paso_2", titulo: "📚 Marco de referencia",      nivel: "N2",     color: "#81C784", nivelNombre: "Diseñar / Fundamentar" },
+    { num: 3, id: "paso_3", titulo: "❓ Pregunta de investigación",nivel: "N1",     color: "#26C6DA", nivelNombre: "Formular / Delimitar" },
+    { num: 4, id: "paso_4", titulo: "🎯 Objetivos",                nivel: "N1",     color: "#26C6DA", nivelNombre: "Formular / Delimitar" },
+    { num: 5, id: "paso_5", titulo: "💡 Justificación",            nivel: "N1",     color: "#26C6DA", nivelNombre: "Formular / Delimitar" },
+    { num: 6, id: "paso_6", titulo: "🧪 Marco metodológico",       nivel: "N2",     color: "#81C784", nivelNombre: "Diseñar / Fundamentar" },
+    { num: 7, id: "paso_7", titulo: "📅 Cronograma y recursos",    nivel: "N2",     color: "#81C784", nivelNombre: "Diseñar / Fundamentar" },
+    { num: 8, id: "paso_8", titulo: "📊 Marco lógico",             nivel: "N3–N4",  color: "#AED581", nivelNombre: "Aplicar / Interpretar" },
+    { num: 9, id: "paso_9", titulo: "🎓 Síntesis y transferencia", nivel: "N5–N6",  color: "#FFD54F", nivelNombre: "Evaluar / Transferir" }
+];
+
+const HERRAMIENTAS_POR_PASO = {
+    paso_1: [
+        { nombre: "ChatGPT / Claude", uso: "Explorar ideas, generar primeras versiones." },
+        { nombre: "Gemini", uso: "Lluvia de ideas con contexto." },
+        { nombre: "Perplexity AI", uso: "Búsqueda con citas en tiempo real." }
+    ],
+    paso_2: [
+        { nombre: "Elicit / Consensus", uso: "Búsqueda académica con evidencia." },
+        { nombre: "ResearchRabbit / Litmaps", uso: "Mapas visuales de citas." },
+        { nombre: "ChatPDF / Humata", uso: "Preguntas específicas a PDFs." },
+        { nombre: "Scite.ai", uso: "Análisis de cómo se cita un paper." }
+    ],
+    paso_3: [
+        { nombre: "ChatGPT / Claude", uso: "Refinar la pregunta con variantes." },
+        { nombre: "Semantic Scholar", uso: "Explorar preguntas similares." }
+    ],
+    paso_4: [
+        { nombre: "ChatGPT", uso: "Derivar objetivos con taxonomía de verbos." },
+        { nombre: "Gemini", uso: "Alinear objetivos con pregunta de investigación." }
+    ],
+    paso_5: [
+        { nombre: "ChatGPT / Claude", uso: "Redactar las 4 dimensiones de justificación." }
+    ],
+    paso_6: [
+        { nombre: "Julius AI", uso: "Planificación estadística y análisis." },
+        { nombre: "Qualtrics / Typeform", uso: "Diseño de instrumentos." },
+        { nombre: "Dovetail / NVivo", uso: "Análisis cualitativo." }
+    ],
+    paso_7: [
+        { nombre: "Notion AI", uso: "Cronogramas y checklists." },
+        { nombre: "MS Copilot (Excel)", uso: "Presupuestos y tablas." }
+    ],
+    paso_8: [
+        { nombre: "ChatGPT / Claude", uso: "Estructurar fin-propósito-componentes." },
+        { nombre: "Julius AI", uso: "Indicadores y metas SMART." }
+    ],
+    paso_9: [
+        { nombre: "Paperpal / Trinka", uso: "Corrección de estilo académico." },
+        { nombre: "Midjourney / Canva IA", uso: "Visualizaciones del proyecto." },
+        { nombre: "DeepL / Google Translate", uso: "Traducción asistida." }
+    ]
+};
+
+const CAMPOS_POR_PASO = {
+    paso_1: [
+        { id: 'p1_contexto', label: '📍 Contexto (dónde, cuándo, quiénes)', tipo: 'textarea', placeholder: 'Ej: En la vereda X, durante 2024, los jóvenes entre 18 y 25 años...' },
+        { id: 'p1_problema', label: '⚠️ ¿Qué situación problémica has identificado?', tipo: 'textarea', placeholder: 'Ej: La mayoría abandona sus proyectos productivos...' },
+        { id: 'p1_evidencia', label: '📊 ¿Qué evidencia tienes?', tipo: 'textarea', placeholder: 'Ej: Solo el 20% mantiene su emprendimiento...' },
+        { id: 'p1_vacio', label: '🔍 ¿Qué no se ha investigado sobre esto?', tipo: 'textarea', placeholder: 'Ej: No hay estudios específicos en esta vereda...' }
+    ],
+    paso_2: [
+        { id: 'p2_conceptos', label: '🔑 Conceptos clave a definir', tipo: 'textarea', placeholder: 'Ej: emprendimiento rural, proyectos de vida...' },
+        { id: 'p2_global', label: '🌍 Contexto global', tipo: 'textarea', placeholder: 'Ej: La FAO (2020) señala que...' },
+        { id: 'p2_nacional', label: '🇨🇴 Contexto nacional', tipo: 'textarea', placeholder: 'Ej: El Plan Nacional de Desarrollo...' },
+        { id: 'p2_local', label: '🏫 Contexto local', tipo: 'textarea', placeholder: 'Ej: En el SENA, el programa...' },
+        { id: 'p2_antecedentes', label: '📚 Antecedentes (3+ estudios previos)', tipo: 'textarea', placeholder: 'Ej: Sánchez (2020) estudió...' }
+    ],
+    paso_3: [
+        { id: 'p3_pregunta', label: '❓ ¿Qué quieres responder exactamente?', tipo: 'textarea', placeholder: 'Escribe tu idea de pregunta. El asistente la refinará según la ruta.' }
+    ],
+    paso_4: [
+        { id: 'p4_general', label: '🎯 Objetivo general', tipo: 'textarea', placeholder: 'Ej: Determinar la relación entre...' },
+        { id: 'p4_especificos', label: '📋 Objetivos específicos (3-5)', tipo: 'textarea', placeholder: 'Uno por línea.' }
+    ],
+    paso_5: [
+        { id: 'p5_social', label: '👥 Relevancia social', tipo: 'textarea', placeholder: 'Ej: Beneficia a los jóvenes rurales...' },
+        { id: 'p5_teorica', label: '📖 Relevancia teórica', tipo: 'textarea', placeholder: 'Ej: Aporta a la comprensión de...' },
+        { id: 'p5_metodologica', label: '🧪 Relevancia metodológica', tipo: 'textarea', placeholder: 'Ej: Propone un abordaje cualitativo...' },
+        { id: 'p5_practica', label: '🛠️ Relevancia práctica', tipo: 'textarea', placeholder: 'Ej: Permitirá al SENA rediseñar...' }
+    ],
+    paso_6: [
+        { id: 'p6_alcance', label: '🎯 Alcance', tipo: 'text', placeholder: 'exploratorio / descriptivo / correlacional / explicativo' },
+        { id: 'p6_diseno', label: '🧪 Diseño específico', tipo: 'text', placeholder: 'Ej: no experimental transversal' },
+        { id: 'p6_poblacion', label: '👥 Población y muestra', tipo: 'textarea', placeholder: 'Ej: 320 aprendices; muestra de 180...' },
+        { id: 'p6_instrumentos', label: '🛠️ Instrumentos', tipo: 'textarea', placeholder: 'Ej: cuestionario de 25 ítems...' },
+        { id: 'p6_analisis', label: '📊 Plan de análisis', tipo: 'textarea', placeholder: 'Ej: estadística descriptiva...' }
+    ],
+    paso_7: [
+        { id: 'p7_fases', label: '📅 Fases del proyecto', tipo: 'textarea', placeholder: 'Ej: Fase 1 documental...' },
+        { id: 'p7_duracion', label: '⏱️ Duración total', tipo: 'text', placeholder: 'Ej: 8 meses' },
+        { id: 'p7_recursos', label: '💰 Recursos', tipo: 'textarea', placeholder: 'Ej: 1 investigador + 1 coinvestigador...' }
+    ],
+    paso_8: [
+        { id: 'p8_fin', label: '🔵 FIN (impacto a largo plazo)', tipo: 'textarea', placeholder: 'Ej: Contribuir al arraigo territorial...' },
+        { id: 'p8_proposito', label: '🟢 PROPÓSITO (efecto directo)', tipo: 'textarea', placeholder: 'Ej: Comprender las dimensiones...' },
+        { id: 'p8_componentes', label: '🟡 COMPONENTES (productos)', tipo: 'textarea', placeholder: 'Uno por línea. Ej: Guía metodológica; Artículo científico...' },
+        { id: 'p8_indicadores', label: '📏 INDICADORES (uno por nivel)', tipo: 'textarea', placeholder: 'Ej: FIN: %; PROPÓSITO: 5 categorías; C1: 1 guía...' },
+        { id: 'p8_medios', label: '🎯 MEDIOS DE VERIFICACIÓN', tipo: 'textarea', placeholder: 'Ej: Informe final; Repositorio; Registros institucionales...' },
+        { id: 'p8_supuestos', label: '⚠️ SUPUESTOS (condiciones externas)', tipo: 'textarea', placeholder: 'Ej: Acceso continuo al territorio; Colaboración de empresas...' },
+        { id: 'p8_actividades', label: '🟠 ACTIVIDADES por componente', tipo: 'textarea', placeholder: 'Ej: A1.1 Revisión documental; A1.2 Entrevistas...' }
+    ],
+    paso_9: [
+        { id: 'p9_recapitulacion', label: '🔄 Recapitulación (problema + pregunta)', tipo: 'textarea', placeholder: 'Ej: Esta investigación abordó...' },
+        { id: 'p9_hallazgos', label: '🎯 Hallazgos esperados', tipo: 'textarea', placeholder: 'Ej: Se espera comprender...' },
+        { id: 'p9_aportes', label: '💡 Aportes al conocimiento y la práctica', tipo: 'textarea', placeholder: 'Ej: Aporta al conocimiento sobre...' },
+        { id: 'p9_productos', label: '📦 Productos de transferencia', tipo: 'textarea', placeholder: 'Ej: 1 artículo, 1 guía, 1 cartilla...' }
+    ]
+};
+
+// ============================================================
+// ESTADO
+// ============================================================
+let pasoActual = null;
+let casuisticaCargada = {};
+let instruccionesGlobales = "";
+let estadoPasos = {};
+let rutaElegida = null;
+
+// ============================================================
+// CARGA DE CASUÍSTICA
+// ============================================================
+async function cargarCasuistica() {
+    const infoEl = document.getElementById('versionInfo');
+    try {
+        const res = await fetch('casuistica/instrucciones_globales.txt');
+        if (res.ok) instruccionesGlobales = await res.text();
+    } catch (e) { console.warn('Sin instrucciones globales:', e); }
+
+    let cargados = 0;
+    for (const paso of PASOS) {
+        try {
+            const res = await fetch(`casuistica/${paso.id}.txt`);
+            if (res.ok) { casuisticaCargada[paso.id] = await res.text(); cargados++; }
+        } catch (e) { console.warn(`Sin ${paso.id}:`, e); }
+    }
+    let version = 'v1.0';
+    const matchVersion = instruccionesGlobales.match(/version:\s*([\d.]+)/);
+    if (matchVersion) version = 'v' + matchVersion[1];
+    if (infoEl) infoEl.textContent = `Casuística ${version} · ${cargados}/9 pasos cargados`;
+}
+
+function calcularMadurez(idPaso) {
+    const contenido = casuisticaCargada[idPaso] || "";
+    const match = contenido.match(/casos_totales:\s*(\d+)/);
+    const casos = match ? parseInt(match[1]) : 0;
+    if (casos === 0) return { estado: 'vacio', texto: 'Sin casos aún', casos: 0 };
+    if (casos < 3) return { estado: 'aprendiendo', texto: `Aprendiendo (${casos} casos)`, casos };
+    return { estado: 'maduro', texto: `Maduro (${casos} casos)`, casos };
+}
+
+// ============================================================
+// SIDEBAR
+// ============================================================
+function renderizarSidebar() {
+    const lista = document.getElementById('listaPasos');
+    if (!lista) return;
+    lista.innerHTML = '';
+    PASOS.forEach(paso => {
+        const madurez = calcularMadurez(paso.id);
+        const estadoPaso = estadoPasos[paso.id] || {};
+        const completado = estadoPaso.completado;
+        const div = document.createElement('div');
+        div.className = 'paso-item';
+        if (pasoActual === paso.id) div.classList.add('activo');
+        if (completado) div.classList.add('completado');
+        div.innerHTML = `
+            <div class="paso-num">${completado ? '✓' : paso.num}</div>
+            <div class="paso-info">
+                <div class="paso-titulo">${paso.titulo}</div>
+                <div class="paso-madurez">
+                    <span class="semaforo ${madurez.estado}"></span>
+                    <span style="color: #888;">${madurez.texto}</span>
+                </div>
+            </div>
+        `;
+        div.addEventListener('click', () => seleccionarPaso(paso.id));
+        lista.appendChild(div);
+    });
+    actualizarProgreso();
+    actualizarRutaBox();
+}
+
+function actualizarProgreso() {
+    const completados = Object.values(estadoPasos).filter(p => p && p.completado).length;
+    const el = document.getElementById('progresoNum');
+    if (el) el.textContent = `${completados} / 9`;
+}
+
+function actualizarRutaBox() {
+    const box = document.getElementById('rutaActualBox');
+    const texto = document.getElementById('rutaActualTexto');
+    if (!box || !texto) return;
+    if (rutaElegida) {
+        const nombres = { cuanti: '🔵 Cuantitativa', cuali: '🟢 Cualitativa', mixta: '🟣 Mixta' };
+        texto.textContent = nombres[rutaElegida] || rutaElegida;
+        box.classList.add('visible');
+    } else {
+        box.classList.remove('visible');
+    }
+}
+
+// ============================================================
+// SELECCIÓN Y RENDERIZADO DE PASO
+// ============================================================
+function seleccionarPaso(idPaso) {
+    pasoActual = idPaso;
+    renderizarSidebar();
+    renderizarContenidoPaso(idPaso);
+}
+
+function renderizarContenidoPaso(idPaso) {
+    const paso = PASOS.find(p => p.id === idPaso);
+    if (!paso) return;
+    const madurez = calcularMadurez(idPaso);
+    const estadoPaso = estadoPasos[idPaso] || { respuestas: {}, borrador: '', completado: false };
+    const herramientas = HERRAMIENTAS_POR_PASO[idPaso] || [];
+
+    let htmlMadurez = '';
+    if (madurez.estado === 'vacio') {
+        htmlMadurez = `<div class="madurez-box vacio">
+            <span style="font-size:1.4rem;">🔴</span>
+            <div><strong>Aún no tengo casos de referencia para este paso.</strong><br>
+            Puedo darte un borrador basado solo en las plantillas y reglas.</div>
+        </div>`;
+    } else if (madurez.estado === 'aprendiendo') {
+        htmlMadurez = `<div class="madurez-box aprendiendo">
+            <span style="font-size:1.4rem;">🟡</span>
+            <div><strong>Estoy aprendiendo de este paso.</strong><br>
+            Tengo ${madurez.casos} caso(s) de referencia.</div>
+        </div>`;
+    } else {
+        htmlMadurez = `<div class="madurez-box maduro">
+            <span style="font-size:1.4rem;">🟢</span>
+            <div><strong>Este paso está bien soportado.</strong><br>
+            Tengo ${madurez.casos} casos de referencia.</div>
+        </div>`;
+    }
+
+    let notaRuta = '';
+    if ([3, 4, 6, 7].includes(paso.num)) {
+        if (rutaElegida) {
+            const nombres = { cuanti: '🔵 cuantitativa', cuali: '🟢 cualitativa', mixta: '🟣 mixta' };
+            notaRuta = `<div style="background:#e3f2fd; border-left:4px solid var(--sena-azul); padding:10px 14px; border-radius:0 8px 8px 0; margin-bottom:15px; font-size:0.88rem;">
+                <strong>🧭 Este paso es sensible a la ruta.</strong> Tu ruta es <strong>${nombres[rutaElegida]}</strong>.
+            </div>`;
+        } else {
+            notaRuta = `<div style="background:#fff3e0; border-left:4px solid var(--sena-naranja); padding:10px 14px; border-radius:0 8px 8px 0; margin-bottom:15px; font-size:0.88rem;">
+                ⚠️ <strong>Este paso es sensible a la ruta.</strong> Aún no has definido tu ruta. Ve a la pestaña <strong>"🧭 ¿Qué ruta me corresponde?"</strong>.
+            </div>`;
+        }
+    }
+
+    // Nota especial para el paso 8
+    if (paso.num === 8) {
+        notaRuta += `<div style="background:#e8f5e9; border-left:4px solid var(--sena-verde); padding:10px 14px; border-radius:0 8px 8px 0; margin-bottom:15px; font-size:0.88rem;">
+            <strong>📐 Enfoque de Marco Lógico.</strong> Este paso produce la matriz completa con los 4 niveles: FIN, PROPÓSITO, COMPONENTES y ACTIVIDADES. La app validará la coherencia y la mostrará como tabla.
+        </div>`;
+    }
+
+    const htmlFormulario = generarFormularioPaso(paso, estadoPaso.respuestas);
+
+    let htmlHerramientas = '';
+    if (herramientas.length > 0) {
+        htmlHerramientas = `<div class="herramientas-box"><ul>`;
+        herramientas.forEach(h => { htmlHerramientas += `<li><strong>${h.nombre}:</strong> ${h.uso}</li>`; });
+        htmlHerramientas += `</ul></div>`;
+    }
+
+    let htmlBorrador = '';
+    if (estadoPaso.borrador) {
+        const tokensInfo = estadoPaso.tokens
+            ? `<div class="tokens-info">⚡ ${estadoPaso.tokens.tokens_total || 0} tokens · ${estadoPaso.tokens.tokens_prompt || 0} entrada + ${estadoPaso.tokens.tokens_respuesta || 0} salida</div>`
+            : '';
+        htmlBorrador = `
+            <div class="borrador-box visible">
+                <h3>📝 Borrador generado</h3>
+                <div class="borrador-contenido">${escapeHtml(estadoPaso.borrador)}</div>
+                ${tokensInfo}
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="copiarBorrador()">📋 Copiar</button>
+                    <button class="btn btn-warning" onclick="regenerarBorrador()">🔄 Generar otra versión</button>
+                    ${!estadoPaso.completado
+                        ? `<button class="btn btn-primary" onclick="marcarCompletado()">✅ Aceptar y completar</button>`
+                        : `<button class="btn btn-outline" onclick="marcarIncompleto()">↩️ Marcar como pendiente</button>`}
+                </div>
+            </div>
+        `;
+    }
+
+    // Bloque especial para el paso 8: matriz visual + validación
+    let htmlMatrizML = '';
+    if (paso.num === 8) {
+        htmlMatrizML = `
+            <div class="matriz-ml-wrap ${estadoPaso.borrador ? 'visible' : ''}" id="matrizMLWrap">
+                <h3>📊 Matriz visual del Marco Lógico</h3>
+                <p class="matriz-ml-sub">Los 4 niveles del ML con sus indicadores, medios de verificación y supuestos.</p>
+
+                <table class="matriz-ml-tabla" id="matrizMLTabla">
+                    <thead>
+                        <tr>
+                            <th>Nivel</th>
+                            <th>Descripción</th>
+                            <th>Indicadores</th>
+                            <th>Medios de verificación</th>
+                            <th>Supuestos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrizMLBody">
+                        <tr>
+                            <td class="ml-nivel fin">🔵 FIN</td>
+                            <td>${escapeHtml(estadoPaso.respuestas?.p8_fin || '—')}</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td class="ml-nivel proposito">🟢 PROPÓSITO</td>
+                            <td>${escapeHtml(estadoPaso.respuestas?.p8_proposito || '—')}</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td class="ml-nivel componente">🟡 COMPONENTES</td>
+                            <td>${escapeHtml(estadoPaso.respuestas?.p8_componentes || '—')}</td>
+                            <td>${escapeHtml(estadoPaso.respuestas?.p8_indicadores || '—')}</td>
+                            <td>${escapeHtml(estadoPaso.respuestas?.p8_medios || '—')}</td>
+                            <td>${escapeHtml(estadoPaso.respuestas?.p8_supuestos || '—')}</td>
+                        </tr>
+                        <tr>
+                            <td class="ml-nivel actividad">🟠 ACTIVIDADES</td>
+                            <td>${escapeHtml(estadoPaso.respuestas?.p8_actividades || '—')}</td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="validarMarcoLogico()">🔍 Validar coherencia del ML</button>
+                    <button class="btn btn-outline" onclick="actualizarMatrizML()">🔄 Actualizar matriz</button>
+                </div>
+
+                <div class="advertencias-ml" id="advertenciasML">
+                    <h4>⚠️ Advertencias del Marco Lógico</h4>
+                    <ul id="advertenciasMLLista"></ul>
+                </div>
+
+                <div class="validacion-ok" id="validacionOK">
+                    <strong>✅ Marco Lógico coherente.</strong> Los 4 niveles están completos y la cadena vertical es lógica.
+                </div>
+
+                <div class="declaracion-enfoque">
+                    Este anteproyecto se formula siguiendo la metodología de <strong>Marco Lógico</strong>: FIN → PROPÓSITO → COMPONENTES → ACTIVIDADES. Cada nivel tiene indicadores, medios de verificación y supuestos.
+                </div>
+            </div>
+        `;
+    }
+
+    const contenido = document.getElementById('contenidoPrincipal');
+    if (!contenido) return;
+    contenido.innerHTML = `
+        <div class="paso-header">
+            <span class="nivel-badge" style="background: ${paso.color}; color: ${['paso_4','paso_5','paso_6','paso_9'].includes(paso.id) ? '#333' : '#fff'};">Nivel ${paso.nivel} · ${paso.nivelNombre}</span>
+            <h2>Paso ${paso.num} · ${paso.titulo}</h2>
+            <p class="paso-subtitulo">Completa el formulario y el asistente generará un borrador con la casuística disponible.</p>
+        </div>
+        ${notaRuta}
+        ${htmlMadurez}
+        ${htmlFormulario}
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="generarBorrador()">🤖 Generar borrador con IA</button>
+            <button class="btn btn-outline" onclick="limpiarFormulario()">🗑️ Limpiar formulario</button>
+        </div>
+        ${htmlBorrador}
+        ${htmlMatrizML}
+        ${htmlHerramientas}
+    `;
+}
+
+function generarFormularioPaso(paso, respuestas) {
+    const campos = CAMPOS_POR_PASO[paso.id] || [];
+    if (campos.length === 0) return '<p>Formulario no disponible.</p>';
+    let html = '';
+    campos.forEach(campo => {
+        const valor = respuestas[campo.id] || '';
+        html += `<div class="form-group"><label for="${campo.id}">${campo.label}</label>`;
+        if (campo.tipo === 'textarea') {
+            html += `<textarea id="${campo.id}" placeholder="${campo.placeholder || ''}">${escapeHtml(valor)}</textarea>`;
+        } else {
+            html += `<input type="text" id="${campo.id}" placeholder="${campo.placeholder || ''}" value="${escapeHtml(valor)}">`;
+        }
+        html += `</div>`;
+    });
+    return html;
+}
+
+// ============================================================
+// GENERAR BORRADOR
+// ============================================================
+async function generarBorrador() {
+    const paso = PASOS.find(p => p.id === pasoActual);
+    if (!paso) return;
+    const campos = CAMPOS_POR_PASO[paso.id] || [];
+    const respuestas = {};
+    let hayContenido = false;
+    campos.forEach(c => {
+        const el = document.getElementById(c.id);
+        if (el) { respuestas[c.id] = el.value.trim(); if (respuestas[c.id]) hayContenido = true; }
+    });
+    if (!hayContenido) { mostrarToast('Escribe al menos un campo antes de generar.', 'error'); return; }
+    if (!estadoPasos[paso.id]) estadoPasos[paso.id] = { respuestas: {}, borrador: '', completado: false };
+    estadoPasos[paso.id].respuestas = respuestas;
+
+    const contextoPrevios = construirContextoPrevios(paso.num);
+    const prompt = construirPrompt(paso, respuestas, contextoPrevios);
+
+    mostrarLoading('Generando borrador con IA...');
+    try {
+        const res = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt, paso: paso.id })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.detalle || data.error);
+        if (!data.borrador) throw new Error('El Worker no devolvió borrador.');
+        estadoPasos[paso.id].borrador = data.borrador;
+        estadoPasos[paso.id].tokens = data.uso || null;
+        guardarEstado();
+        seleccionarPaso(paso.id);
+        mostrarToast('Borrador generado ✅', 'success');
+    } catch (e) {
+        console.error(e);
+        mostrarToast('Error: ' + e.message, 'error');
+    } finally {
+        ocultarLoading();
+    }
+}
+
+function construirContextoPrevios(numPasoActual) {
+    let contexto = '';
+    for (let i = 1; i < numPasoActual; i++) {
+        const pasoId = `paso_${i}`;
+        const estado = estadoPasos[pasoId];
+        if (estado && (estado.borrador || Object.values(estado.respuestas || {}).some(v => v))) {
+            contexto += `\n--- CONTEXTO DEL PASO ${i} ---\n`;
+            if (estado.borrador) contexto += estado.borrador.substring(0, 1000) + '\n';
+            else Object.entries(estado.respuestas).forEach(([k, v]) => { if (v) contexto += `${k}: ${v}\n`; });
+        }
+    }
+    return contexto || 'Sin contexto previo aún. Este es el primer paso.';
+}
+
+function construirPrompt(paso, respuestas, contextoPrevios) {
+    const casuistica = casuisticaCargada[paso.id] || 'Sin casuística disponible para este paso.';
+    const instrucciones = instruccionesGlobales || '';
+    const respuestasTexto = Object.entries(respuestas).filter(([k, v]) => v).map(([k, v]) => `- ${k}: ${v}`).join('\n');
+    let rutaTexto = '';
+    if (rutaElegida && [3, 4, 6, 7].includes(paso.num)) {
+        const nombres = { cuanti: 'CUANTITATIVA', cuali: 'CUALITATIVA', mixta: 'MIXTA' };
+        rutaTexto = `\n=== RUTA ELEGIDA POR EL USUARIO ===\n${nombres[rutaElegida]}\nLa redacción DEBE respetar esta ruta.\n`;
+    }
+
+    let mlTexto = '';
+    if (paso.num === 8) {
+        mlTexto = `\n=== ENFOQUE DE MARCO LÓGICO ===\nEste paso se redacta siguiendo la metodología de Marco Lógico.\nEstructura obligatoria:\n1. FIN: impacto a largo plazo.\n2. PROPÓSITO: efecto directo del proyecto.\n3. COMPONENTES: 2 a 4 productos entregables.\n4. ACTIVIDADES: 2 a 4 por componente.\nCada nivel (excepto actividades) debe tener indicador SMART, medios de verificación y supuestos.\n`;
+    }
+
+    return `Eres un asistente experto en metodología de la investigación pedagógica.
+
+TAREA: Redactar el "${paso.titulo}" (Paso ${paso.num} de 9) de un anteproyecto de investigación.
+
+=== CONTEXTO DE LOS PASOS PREVIOS ===
+${contextoPrevios}
+${rutaTexto}
+${mlTexto}
+=== RESPUESTAS DEL USUARIO EN ESTE PASO ===
+${respuestasTexto}
+
+=== INSTRUCCIONES GLOBALES ===
+${instrucciones}
+
+=== CASUÍSTICA DE REFERENCIA PARA ESTE PASO ===
+${casuistica}
+
+=== INSTRUCCIONES DE SALIDA ===
+1. Redacta el "${paso.titulo}" siguiendo las reglas específicas del paso.
+2. Usa los casos de referencia como inspiración de estructura y tono.
+3. Respeta las instrucciones globales (tono académico, tercera persona, sin clichés).
+4. NO inventes datos que el usuario no proporcionó.
+5. Devuelve SOLO el texto del borrador, sin explicaciones ni comentarios adicionales.
+6. Extensión: entre 3 y 5 párrafos (excepto Paso 2, hasta 6).
+
+BORRADOR:`;
+}
+
+// ============================================================
+// ACCIONES SOBRE EL BORRADOR
+// ============================================================
+function copiarBorrador() {
+    const estado = estadoPasos[pasoActual];
+    if (!estado || !estado.borrador) return;
+    navigator.clipboard.writeText(estado.borrador).then(() => {
+        mostrarToast('Borrador copiado ✅', 'success');
+    });
+}
+
+function marcarCompletado() {
+    if (!estadoPasos[pasoActual]) estadoPasos[pasoActual] = { respuestas: {}, borrador: '', completado: false };
+    estadoPasos[pasoActual].completado = true;
+    guardarEstado();
+    renderizarSidebar();
+    renderizarContenidoPaso(pasoActual);
+    mostrarToast('Paso completado ✅', 'success');
+}
+
+function marcarIncompleto() {
+    if (!estadoPasos[pasoActual]) return;
+    estadoPasos[pasoActual].completado = false;
+    guardarEstado();
+    renderizarSidebar();
+    renderizarContenidoPaso(pasoActual);
+    mostrarToast('Paso marcado como pendiente', 'info');
+}
+
+function regenerarBorrador() { generarBorrador(); }
+
+function limpiarFormulario() {
+    if (!confirm('¿Seguro que quieres limpiar el formulario de este paso?')) return;
+    if (estadoPasos[pasoActual]) {
+        estadoPasos[pasoActual].respuestas = {};
+        estadoPasos[pasoActual].borrador = '';
+    }
+    guardarEstado();
+    seleccionarPaso(pasoActual);
+    mostrarToast('Formulario limpiado', 'info');
+}
+
+// ============================================================
+// 🆕 VALIDACIÓN DE MARCO LÓGICO
+// ============================================================
+function validarMarcoLogico() {
+    const estado = estadoPasos['paso_8'];
+    if (!estado) { mostrarToast('Primero completa el Paso 8.', 'error'); return; }
+    const r = estado.respuestas || {};
+
+    const advertencias = [];
+
+    // Validar FIN
+    if (!r.p8_fin || r.p8_fin.length < 10) {
+        advertencias.push('🔵 <strong>FIN</strong>: la descripción es muy corta o está vacía.');
+    }
+
+    // Validar PROPÓSITO
+    if (!r.p8_proposito || r.p8_proposito.length < 10) {
+        advertencias.push('🟢 <strong>PROPÓSITO</strong>: la descripción es muy corta o está vacía.');
+    }
+
+    // Validar COMPONENTES
+    if (!r.p8_componentes || r.p8_componentes.length < 10) {
+        advertencias.push('🟡 <strong>COMPONENTES</strong>: debes listar al menos 2 productos entregables.');
+    }
+
+    // Validar INDICADORES
+    if (!r.p8_indicadores || r.p8_indicadores.length < 10) {
+        advertencias.push('📏 <strong>INDICADORES</strong>: faltan. Cada nivel necesita indicadores SMART.');
+    } else {
+        // Verificar que menciona al menos una cifra o plazo
+        if (!/\d/.test(r.p8_indicadores)) {
+            advertencias.push('📏 <strong>INDICADORES</strong>: no se detectan cifras ni plazos. Los indicadores deben ser medibles.');
+        }
+    }
+
+    // Validar MEDIOS
+    if (!r.p8_medios || r.p8_medios.length < 10) {
+        advertencias.push('🎯 <strong>MEDIOS DE VERIFICACIÓN</strong>: faltan. Cada indicador necesita una fuente verificable.');
+    }
+
+    // Validar SUPUESTOS
+    if (!r.p8_supuestos || r.p8_supuestos.length < 10) {
+        advertencias.push('⚠️ <strong>SUPUESTOS</strong>: faltan. Deben ser condiciones externas al proyecto.');
+    } else if (/lograr|resultado|éxito/i.test(r.p8_supuestos)) {
+        advertencias.push('⚠️ <strong>SUPUESTOS</strong>: parece contener resultados del proyecto en lugar de condiciones externas.');
+    }
+
+    // Validar ACTIVIDADES
+    if (!r.p8_actividades || r.p8_actividades.length < 10) {
+        advertencias.push('🟠 <strong>ACTIVIDADES</strong>: debes listar acciones concretas por componente.');
+    }
+
+    // Validar coherencia con objetivos (Paso 4)
+    const paso4 = estadoPasos['paso_4'];
+    if (paso4 && paso4.respuestas && paso4.respuestas.p4_general) {
+        // Si el objetivo general es "Determinar", el propósito debería mencionar "Determinar" o "comprender"
+        const obj = paso4.respuestas.p4_general.toLowerCase();
+        const prop = (r.p8_proposito || '').toLowerCase();
+        if (obj.includes('determinar') && !prop.includes('determinar') && !prop.includes('comprender') && !prop.includes('medir')) {
+            advertencias.push('🔗 <strong>Coherencia con Objetivos</strong>: el objetivo general (Paso 4) usa "determinar" pero el propósito no refleja esa acción.');
+        }
+    }
+
+    // Mostrar resultados
+    const advertenciasBox = document.getElementById('advertenciasML');
+    const validacionOK = document.getElementById('validacionOK');
+    const lista = document.getElementById('advertenciasMLLista');
+
+    if (advertencias.length === 0) {
+        advertenciasBox.classList.remove('visible');
+        validacionOK.classList.add('visible');
+        mostrarToast('✅ Marco Lógico coherente.', 'success');
+    } else {
+        lista.innerHTML = advertencias.map(a => `<li>${a}</li>`).join('');
+        advertenciasBox.classList.add('visible');
+        validacionOK.classList.remove('visible');
+        mostrarToast(`⚠️ ${advertencias.length} advertencia(s) en el ML.`, 'info');
+    }
+}
+
+function actualizarMatrizML() {
+    const estado = estadoPasos['paso_8'];
+    if (!estado) return;
+    const r = estado.respuestas || {};
+    const tbody = document.getElementById('matrizMLBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = `
+        <tr>
+            <td class="ml-nivel fin">🔵 FIN</td>
+            <td>${escapeHtml(r.p8_fin || '—')}</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td class="ml-nivel proposito">🟢 PROPÓSITO</td>
+            <td>${escapeHtml(r.p8_proposito || '—')}</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+        </tr>
+        <tr>
+            <td class="ml-nivel componente">🟡 COMPONENTES</td>
+            <td>${escapeHtml(r.p8_componentes || '—')}</td>
+            <td>${escapeHtml(r.p8_indicadores || '—')}</td>
+            <td>${escapeHtml(r.p8_medios || '—')}</td>
+            <td>${escapeHtml(r.p8_supuestos || '—')}</td>
+        </tr>
+        <tr>
+            <td class="ml-nivel actividad">🟠 ACTIVIDADES</td>
+            <td>${escapeHtml(r.p8_actividades || '—')}</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+        </tr>
+    `;
+    mostrarToast('Matriz actualizada ✅', 'success');
+}
+
+// ============================================================
+// VISTA PREVIA Y EXPORTACIÓN
+// ============================================================
+function actualizarPreview() {
+    const preview = document.getElementById('pdfPreview');
+    if (!preview) return;
+    const nombresRuta = { cuanti: '🔵 Cuantitativa', cuali: '🟢 Cualitativa', mixta: '🟣 Mixta' };
+
+    let html = `<h2>📘 Anteproyecto de Investigación</h2>`;
+    html += `<p><em>Generado con el asistente de Metodología de la Investigación · Enfoque de Marco Lógico</em></p>`;
+    html += `<p><strong>📅 Fecha:</strong> ${new Date().toLocaleDateString('es-CO')}</p>`;
+    if (rutaElegida) html += `<p><strong>🧭 Ruta metodológica:</strong> ${nombresRuta[rutaElegida]}</p>`;
+    else html += `<p class="empty">Ruta metodológica: aún no definida.</p>`;
+    html += `<hr style="margin: 20px 0; border: none; border-top: 2px solid #e0e0e0;">`;
+
+    PASOS.forEach(paso => {
+        const estado = estadoPasos[paso.id];
+        html += `<h3>Paso ${paso.num} · ${paso.titulo}</h3>`;
+        if (estado && estado.borrador) {
+            html += `<p>${escapeHtml(estado.borrador)}</p>`;
+            if (estado.completado) html += `<p style="color: var(--sena-verde); font-size: 0.82rem;"><strong>✅ Completado</strong></p>`;
+            else html += `<p style="color: var(--sena-dorado); font-size: 0.82rem;"><strong>🟡 Borrador</strong></p>`;
+        } else {
+            html += `<p class="empty">Sin contenido aún.</p>`;
+        }
+
+        // Si es el paso 8, agregar la matriz visual
+        if (paso.num === 8 && estado && estado.respuestas) {
+            const r = estado.respuestas;
+            html += `<div style="margin-top:15px; padding:15px; background:#f8f9fa; border-radius:8px; border-left:4px solid var(--sena-verde);">`;
+            html += `<p style="font-weight:700; color:var(--sena-verde); margin-bottom:10px;">📊 Matriz del Marco Lógico</p>`;
+            html += `<table style="width:100%; border-collapse:collapse; font-size:0.85rem;">`;
+            html += `<tr style="background:var(--sena-verde); color:#fff;"><th style="padding:8px;">Nivel</th><th style="padding:8px;">Descripción</th><th style="padding:8px;">Indicadores</th><th style="padding:8px;">Medios</th><th style="padding:8px;">Supuestos</th></tr>`;
+            html += `<tr><td style="padding:8px; border:1px solid #ddd;"><strong>FIN</strong></td><td style="padding:8px; border:1px solid #ddd;">${escapeHtml(r.p8_fin || '—')}</td><td style="padding:8px; border:1px solid #ddd;">—</td><td style="padding:8px; border:1px solid #ddd;">—</td><td style="padding:8px; border:1px solid #ddd;">—</td></tr>`;
+            html += `<tr><td style="padding:8px; border:1px solid #ddd;"><strong>PROPÓSITO</strong></td><td style="padding:8px; border:1px solid #ddd;">${escapeHtml(r.p8_proposito || '—')}</td><td style="padding:8px; border:1px solid #ddd;">—</td><td style="padding:8px; border:1px solid #ddd;">—</td><td style="padding:8px; border:1px solid #ddd;">—</td></tr>`;
+            html += `<tr><td style="padding:8px; border:1px solid #ddd;"><strong>COMPONENTES</strong></td><td style="padding:8px; border:1px solid #ddd;">${escapeHtml(r.p8_componentes || '—')}</td><td style="padding:8px; border:1px solid #ddd;">${escapeHtml(r.p8_indicadores || '—')}</td><td style="padding:8px; border:1px solid #ddd;">${escapeHtml(r.p8_medios || '—')}</td><td style="padding:8px; border:1px solid #ddd;">${escapeHtml(r.p8_supuestos || '—')}</td></tr>`;
+            html += `<tr><td style="padding:8px; border:1px solid #ddd;"><strong>ACTIVIDADES</strong></td><td style="padding:8px; border:1px solid #ddd;">${escapeHtml(r.p8_actividades || '—')}</td><td style="padding:8px; border:1px solid #ddd;">—</td><td style="padding:8px; border:1px solid #ddd;">—</td><td style="padding:8px; border:1px solid #ddd;">—</td></tr>`;
+            html += `</table>`;
+            html += `</div>`;
+        }
+    });
+
+    html += `<hr style="margin: 20px 0; border: none; border-top: 2px solid #e0e0e0;">`;
+    html += `<h3>📐 Declaración de Enfoque Metodológico</h3>`;
+    html += `<p>Este anteproyecto se formula siguiendo la metodología de <strong>Marco Lógico</strong>, complementada con el marco metodológico de Hernández Sampieri. Los 4 niveles del ML (FIN → PROPÓSITO → COMPONENTES → ACTIVIDADES) están presentes y validados.</p>`;
+
+    html += `<hr style="margin: 20px 0; border: none; border-top: 2px solid #e0e0e0;">`;
+    html += `<h3>📋 Anexo · Declaración de uso de IA</h3>`;
+    html += `<p>Este anteproyecto fue construido con el apoyo de un asistente de IA (GPT-4o-mini vía Cloudflare Worker) para generar borradores redactados. El investigador revisó, ajustó y validó cada sección. La IA es <strong>asistente, no autora</strong>. Las decisiones metodológicas, la interpretación y la responsabilidad ética son del investigador humano.</p>`;
+
+    preview.innerHTML = html;
+}
+
+function exportarPDF() {
+    if (!window.jspdf) { mostrarToast('PDF no disponible.', 'error'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 18;
+    const maxWidth = pageWidth - margin * 2;
+    let y = margin;
+    const nombresRuta = { cuanti: 'Cuantitativa', cuali: 'Cualitativa', mixta: 'Mixta' };
+
+    function agregarTexto(texto, fontSize = 10, estilo = 'normal', color = null) {
+        doc.setFontSize(fontSize);
+        doc.setFont(undefined, estilo);
+        if (color) doc.setTextColor(color[0], color[1], color[2]);
+        else doc.setTextColor(30, 30, 30);
+        const lineas = doc.splitTextToSize(String(texto), maxWidth);
+        lineas.forEach(linea => {
+            if (y > pageHeight - margin) { doc.addPage(); y = margin; }
+            doc.text(linea, margin, y);
+            y += fontSize * 0.5;
+        });
+        y += 3;
+    }
+    function agregarLinea() {
+        if (y > pageHeight - margin - 5) { doc.addPage(); y = margin; }
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 5;
+    }
+
+    // PORTADA
+    doc.setFillColor(46, 125, 50);
+    doc.rect(0, 0, pageWidth, 45, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont(undefined, 'bold');
+    doc.text('ANTEPROYECTO DE INVESTIGACIÓN', margin, 25);
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'normal');
+    doc.text('Con enfoque de Marco Lógico · Asistente IA', margin, 35);
+    y = 60;
+    doc.setTextColor(30, 30, 30);
+    agregarTexto(`Fecha: ${new Date().toLocaleDateString('es-CO')}`, 10);
+    if (rutaElegida) agregarTexto(`Ruta metodológica: ${nombresRuta[rutaElegida]}`, 10, 'bold');
+    agregarTexto('Enfoque: Marco Lógico (FIN → PROPÓSITO → COMPONENTES → ACTIVIDADES)', 10, 'bold');
+    y += 5;
+    agregarLinea();
+
+    // LOS 9 PASOS
+    PASOS.forEach(paso => {
+        const estado = estadoPasos[paso.id];
+        if (!estado || !estado.borrador) return;
+        if (y > pageHeight - margin - 20) { doc.addPage(); y = margin; }
+        agregarTexto(`PASO ${paso.num} · ${paso.titulo.toUpperCase()}`, 13, 'bold', [21, 101, 192]);
+        agregarTexto(estado.borrador, 10);
+        y += 3;
+        agregarLinea();
+    });
+
+    // MATRIZ DEL MARCO LÓGICO COMO TABLA
+    const estado8 = estadoPasos['paso_8'];
+    if (estado8 && estado8.respuestas && window.jspdf) {
+        doc.addPage();
+        y = margin;
+
+        doc.setFillColor(46, 125, 50);
+        doc.rect(0, 0, pageWidth, 20, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text('MATRIZ DEL MARCO LÓGICO', margin, 14);
+        y = 30;
+        doc.setTextColor(30, 30, 30);
+
+        const r = estado8.respuestas;
+        const head = [['Nivel', 'Descripción', 'Indicadores', 'Medios', 'Supuestos']];
+        const body = [
+            ['FIN', r.p8_fin || '—', '—', '—', '—'],
+            ['PROPÓSITO', r.p8_proposito || '—', '—', '—', '—'],
+            ['COMPONENTES', r.p8_componentes || '—', r.p8_indicadores || '—', r.p8_medios || '—', r.p8_supuestos || '—'],
+            ['ACTIVIDADES', r.p8_actividades || '—', '—', '—', '—']
+        ];
+
+        doc.autoTable({
+            head: head,
+            body: body,
+            startY: y,
+            styles: { fontSize: 8, cellPadding: 3, valign: 'top' },
+            headStyles: { fillColor: [46, 125, 50], textColor: 255, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [248, 249, 250] },
+            columnStyles: {
+                0: { cellWidth: 25, fontStyle: 'bold' },
+                1: { cellWidth: 50 },
+                2: { cellWidth: 40 },
+                3: { cellWidth: 35 },
+                4: { cellWidth: 35 }
+            }
+        });
+    }
+
+    // DECLARACIÓN DE ENFOQUE
+    doc.addPage();
+    y = margin;
+    agregarTexto('DECLARACIÓN DE ENFOQUE METODOLÓGICO', 13, 'bold', [21, 101, 192]);
+    agregarTexto('Este anteproyecto se formula siguiendo la metodología de Marco Lógico (FIN → PROPÓSITO → COMPONENTES → ACTIVIDADES), complementada con el marco metodológico de Hernández Sampieri. Los 4 niveles del ML están presentes y validados con indicadores, medios de verificación y supuestos.', 10);
+    y += 8;
+
+    agregarTexto('ANEXO · DECLARACIÓN DE USO DE IA', 13, 'bold', [21, 101, 192]);
+    agregarTexto('Este anteproyecto fue construido con el apoyo de un asistente de IA (GPT-4o-mini vía Cloudflare Worker) para generar borradores redactados. El investigador revisó, ajustó y validó cada sección. La IA es asistente, no autora. Las decisiones metodológicas, la interpretación y la responsabilidad ética son del investigador humano.', 10);
+
+    doc.save(`anteproyecto_${Date.now()}.pdf`);
+    mostrarToast('PDF descargado ✅', 'success');
+}
+
+function copiarTodo() {
+    let texto = 'ANTEPROYECTO DE INVESTIGACIÓN\n';
+    texto += `Fecha: ${new Date().toLocaleDateString('es-CO')}\n`;
+    texto += `Enfoque: Marco Lógico\n\n`;
+    PASOS.forEach(paso => {
+        const estado = estadoPasos[paso.id];
+        if (estado && estado.borrador) {
+            texto += `PASO ${paso.num} · ${paso.titulo.toUpperCase()}\n`;
+            texto += estado.borrador + '\n\n';
+        }
+    });
+    navigator.clipboard.writeText(texto).then(() => {
+        mostrarToast('Anteproyecto copiado ✅', 'success');
+    });
+}
+
+// ============================================================
+// PERSISTENCIA
+// ============================================================
+function guardarEstado() {
+    try { localStorage.setItem('anteproyecto_estado', JSON.stringify(estadoPasos)); }
+    catch (e) { console.warn('No se pudo guardar:', e); }
+}
+function cargarEstado() {
+    try {
+        const guardado = localStorage.getItem('anteproyecto_estado');
+        if (guardado) estadoPasos = JSON.parse(guardado);
+        const rutaGuardada = localStorage.getItem('rutaElegida');
+        if (rutaGuardada) rutaElegida = rutaGuardada;
+    } catch (e) {
+        console.warn('No se pudo cargar:', e);
+        estadoPasos = {};
+    }
+}
+
+// ============================================================
+// UTILIDADES
+// ============================================================
+function mostrarToast(mensaje, tipo = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = mensaje;
+    toast.className = 'toast ' + tipo;
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+function mostrarLoading(texto = 'Procesando...') {
+    document.getElementById('loadingTexto').textContent = texto;
+    document.getElementById('loadingOverlay').classList.add('visible');
+}
+function ocultarLoading() {
+    document.getElementById('loadingOverlay').classList.remove('visible');
+}
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+window.addEventListener('DOMContentLoaded', async () => {
+    cargarEstado();
+    await cargarCasuistica();
+    // El módulo Herramienta IA queda reservado para una futura implementación.
+});
+</script>
+</body>
+</html>
